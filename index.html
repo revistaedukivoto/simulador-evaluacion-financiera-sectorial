@@ -116,15 +116,16 @@ button,input,select{font:inherit}.hidden{display:none!important}.screen{min-heig
  </section>
 
  <section id="m7" class="module">
-  <h2>7. Contexto macroeconómico</h2>
-  <div class="notice"><b>Referencia DANE:</b> el contexto observado debe diferenciarse de los supuestos utilizados en el proyecto.</div>
+  <h2>7. Contexto macroeconómico y análisis de impacto</h2>
+  <div class="notice"><b>Principio de trazabilidad:</b> el contexto macroeconómico observado debe separarse del supuesto adoptado por el proyecto. El simulador debe explicar la cadena <b>indicador macroeconómico → supuesto → ingresos/costos → flujo de caja → indicadores → viabilidad</b>.</div>
   <div class="grid">
    <div class="field"><label>Crecimiento de referencia (%)</label><input id="macroGrowth" type="number" step=".1" value="3.5"></div>
    <div class="field"><label>IPC de referencia (%)</label><input id="ipc" type="number" step=".1" value="6.24"></div>
    <div class="field"><label>IPP / presión de costos (%)</label><input id="ipp" type="number" step=".1" value="-0.33"></div>
    <div class="field"><label>Ajuste de demanda (%)</label><input id="macroDemand" type="number" step=".1" value="0"></div>
   </div>
-  <p class="muted">Estos campos son supuestos editables y no sustituyen una consulta sectorial específica.</p>
+  <div id="macroAnalysis"></div>
+  <p class="muted">Los valores son editables. La interpretación se construye sobre los datos introducidos y debe contrastarse con series sectoriales específicas antes de una decisión de inversión.</p>
  </section>
 
  <section id="m8" class="module">
@@ -187,7 +188,7 @@ function runSimulation(){
   $('status').innerHTML='<b class="'+(viable?'ok':'warn')+'">Evaluación ejecutada correctamente.</b> Inversión inicial: '+money(p.initialInvestment);
   $('results').innerHTML='<h3>Indicadores principales</h3><div class="metrics">'+metric('VAN',money(van),van>0)+' '+metric('TIR',pct(r.irr),r.irr>p.wacc)+' '+metric('TIRM',pct(tm),tm!==null&&tm>p.wacc)+' '+metric('Payback',Number.isFinite(pb)?pb.toFixed(2)+' años':'No recupera',Number.isFinite(pb))+'</div><div class="interp"><b>Conclusión:</b> '+(viable?'Los indicadores centrales respaldan la generación de valor bajo los supuestos actuales.':'Los resultados requieren ajustes o validación adicional antes de considerar el proyecto financieramente aceptable.')+'</div><h3>Flujo neto</h3><div class="tablewrap"><table><thead><tr><th>Año</th><th>Flujo</th></tr></thead><tbody>'+r.detail.map(x=>'<tr><td>'+x.t+'</td><td>'+money(x.cf)+'</td></tr>').join('')+'</tbody></table></div>';
   $('iterations').innerHTML='<div class="tablewrap"><table><thead><tr><th>Iteración</th><th>Tasa</th><th>f(r)</th><th>f′(r)</th><th>Nueva tasa</th><th>Error</th></tr></thead><tbody>'+r.its.map(x=>'<tr><td>'+x.i+'</td><td>'+pct(x.r)+'</td><td>'+num(x.f)+'</td><td>'+num(x.d)+'</td><td>'+pct(x.nr)+'</td><td>'+num(x.err)+'</td></tr>').join('')+'</tbody></table><p class="muted">TIR final: '+pct(r.irr)+' · Payback descontado: '+(Number.isFinite(pbd)?pbd.toFixed(2)+' años':'No recupera dentro del horizonte')+'</p></div>';
-  $('sectorInfo').innerHTML=sectorText(p);$('sectorAnalysis').innerHTML=sectorAnalysis(p,m,r);$('scenarioBox').innerHTML=scenarios(p,m);$('reportBox').innerHTML=report(p,m,r,van,tm,viable);
+  $('sectorInfo').innerHTML=sectorText(p);$('sectorAnalysis').innerHTML=sectorAnalysis(p,m,r);$('macroAnalysis').innerHTML=macroAnalysis(p,m,r,van);$('scenarioBox').innerHTML=scenarios(p,m);$('reportBox').innerHTML=report(p,m,r,van,tm,viable);
  }catch(e){$('status').innerHTML='<span class="bad"><b>Error:</b> '+esc(e.message)+'</span>'}
 }
 function metric(label,value,good){return '<div class="metric"><div class="label">'+label+'</div><div class="value">'+value+'</div><div class="'+(good?'ok':'bad')+'">'+(good?'Favorable':'Revisar')+'</div></div>'}
@@ -225,6 +226,42 @@ function sectorAnalysis(p,m,r){
  '<div class="sector-section"><h3>Lectura de capacidad y productividad</h3><p><b>Utilización:</b> '+pct(util)+' de la capacidad instalada.</p><div class="bar"><i style="width:'+utilBar+'%"></i></div><p><b>Ingresos año 1:</b> '+money(rev1)+' · <b>Ingresos por trabajador:</b> '+money(revWorker)+' · <b>Unidades proyectadas:</b> '+num(p.units)+' · <b>Capacidad:</b> '+num(p.capacity)+'</p></div>'+
  '<div class="sector-section"><h3>Variables estructurales del sector</h3><div class="tablewrap"><table class="sector-table"><thead><tr><th>Dimensión</th><th>Interpretación</th></tr></thead><tbody>'+rowsSector+'</tbody></table></div></div>'+
  '<div class="sector-section"><h3>Relación entre operación y viabilidad financiera</h3><div class="sector-conclusion"><b>Diagnóstico:</b> '+diagnosis+'<br><br><b>Implicación financiera:</b> el análisis sectorial no reemplaza VAN/TIR; identifica los mecanismos operativos que explican por qué los flujos pueden mejorar o deteriorarse. Para una decisión integral, el diagnóstico debe contrastarse con el VAN, la TIR, la TIRM, el payback y los escenarios de sensibilidad.</div></div>';
+}
+function macroAnalysis(p,m,r,van){
+ const growth=Number($('macroGrowth').value)||0, ipc=Number($('ipc').value)||0, ipp=Number($('ipp').value)||0, demand=Number($('macroDemand').value)||0;
+ const nominalWacc=p.wacc, realWacc=(1+nominalWacc)/(1+ipc/100)-1;
+ const demandFactor=1+demand/100;
+ const projectedGrowth=growth/100+demand/100;
+ const revBase=m.rev.slice(1).reduce((s,x)=>s+x,0), costBase=m.prod.slice(1).reduce((s,x)=>s+x,0)+m.sales.slice(1).reduce((s,x)=>s+x,0);
+ const revImpact=revBase*(growth/100+demand/100);
+ const costImpact=costBase*((Math.max(ipp,0)+Math.max(ipc,0))/100);
+ const realReturn=(Number.isFinite(r.irr)?r.irr:0)-realWacc;
+ const growthState=growth>=3?'expansión moderada/favorable':growth>=1?'crecimiento positivo pero limitado':'bajo dinamismo';
+ const inflationState=ipc<=3?'presión inflacionaria baja':ipc<=6?'presión inflacionaria intermedia':'presión inflacionaria elevada';
+ const ippState=ipp<0?'menor presión reciente sobre precios de productores':ipp<=3?'presión de costos controlable':'presión de costos elevada';
+ const demandState=demand>0?'el supuesto incrementa la demanda frente al escenario de referencia':demand<0?'el supuesto reduce la demanda frente al escenario de referencia':'el supuesto mantiene la demanda sin ajuste';
+ const macroRisk=(ipc>6?1:0)+(ipp>3?1:0)+(growth<1?1:0)+(demand<0?1:0);
+ const overall=macroRisk>=2?'El entorno macroeconómico introduce riesgos relevantes que pueden deteriorar ingresos reales, márgenes y valor presente.':macroRisk===1?'El entorno macroeconómico presenta una señal de riesgo que debe incorporarse a sensibilidad y escenarios.':'El entorno macroeconómico no muestra, bajo estos supuestos, una presión dominante; aun así debe contrastarse con el sector específico.';
+ const rows=[
+  ['Crecimiento',''+growth.toFixed(2)+'%','Actividad económica y demanda potencial',growthState,'Un crecimiento mayor favorece la demanda; un crecimiento bajo reduce el espacio para expansión de ventas.'],
+  ['IPC',''+ipc.toFixed(2)+'%','Precios y poder adquisitivo',inflationState,'El IPC puede elevar precios nominales y costos; si los ingresos no se ajustan proporcionalmente, cae el margen real.'],
+  ['IPP',''+ipp.toFixed(2)+'%','Costos de productores e insumos',ippState,'Un IPP elevado presiona costos de producción; un IPP negativo o bajo puede aliviar el costo de insumos, según la estructura sectorial.'],
+  ['Demanda del proyecto',(demand>=0?'+':'')+demand.toFixed(2)+'%','Ventas proyectadas',demandState,'El ajuste se transmite directamente a los ingresos del proyecto y, por tanto, al flujo de caja.']
+ ];
+ const table=rows.map(x=>'<tr><td><b>'+x[0]+'</b></td><td>'+x[1]+'</td><td>'+x[2]+'</td><td>'+x[3]+'</td><td>'+x[4]+'</td></tr>').join('');
+ return '<div class="sector-section"><h3>1. Lectura de los indicadores macroeconómicos</h3><div class="tablewrap"><table class="sector-table"><thead><tr><th>Indicador</th><th>Valor</th><th>Canal de transmisión</th><th>Diagnóstico</th><th>Efecto esperado sobre el proyecto</th></tr></thead><tbody>'+table+'</tbody></table></div></div>'+
+ '<div class="sector-section"><h3>2. Transmisión hacia el proyecto</h3><div class="sector-grid">'+
+ '<div class="sector-card"><h4>Demanda e ingresos</h4><div class="big">'+money(revImpact)+'</div><p>Impacto indicativo sobre los ingresos acumulados del horizonte si el crecimiento y el ajuste de demanda se trasladaran proporcionalmente a las ventas.</p></div>'+
+ '<div class="sector-card"><h4>Presión sobre costos</h4><div class="big">'+money(costImpact)+'</div><p>Impacto indicativo sobre costos acumulados utilizando IPC/IPP como señales macroeconómicas. No sustituye una estructura sectorial de costos específica.</p></div>'+
+ '<div class="sector-card"><h4>WACC real aproximado</h4><div class="big">'+pct(realWacc)+'</div><p>Conversión aproximada de la tasa nominal de descuento a términos reales mediante inflación. Permite verificar si la rentabilidad supera el costo de capital real.</p></div>'+
+ '</div></div>'+
+ '<div class="sector-section"><h3>3. Implicación sobre la viabilidad financiera</h3><div class="sector-conclusion"><b>Lectura integral:</b> '+overall+' <br><br><b>Rentabilidad frente al costo de capital real:</b> '+(realReturn>0?'la TIR supera aproximadamente el WACC real bajo los supuestos actuales.':'la TIR no supera el WACC real bajo los supuestos actuales; debe revisarse la estructura de ingresos, costos o financiación.')+'<br><br><b>Conclusión macroeconómica:</b> el contexto no debe quedarse como información descriptiva: debe utilizarse para justificar los supuestos de crecimiento de ingresos, evolución de costos, demanda y tasa de descuento. La prueba final debe realizarse mediante escenarios y sensibilidad.</div></div>'+
+ '<div class="sector-section"><h3>4. Escenarios macroeconómicos recomendados</h3><div class="tablewrap"><table class="sector-table"><thead><tr><th>Escenario</th><th>Supuesto</th><th>Lectura</th></tr></thead><tbody>'+
+ '<tr><td><b>Expansivo</b></td><td>Crecimiento y demanda superiores al caso base</td><td>Mayor volumen de ventas, mejor absorción de costos fijos y mayor generación de flujo.</td></tr>'+
+ '<tr><td><b>Base</b></td><td>Valores macroeconómicos introducidos</td><td>Representa la hipótesis central contra la cual se evalúa la viabilidad.</td></tr>'+
+ '<tr><td><b>Adverso</b></td><td>Menor crecimiento, mayor inflación/presión de costos o menor demanda</td><td>Reduce ingresos reales, comprime márgenes y puede deteriorar VAN, TIR y capacidad de servicio de deuda.</td></tr>'+
+ '</tbody></table></div></div>'+
+ '<div class="sector-conclusion"><b>Dictamen macroeconómico:</b> '+overall+' <b>El resultado debe leerse conjuntamente con la evaluación sectorial, los indicadores financieros y la sensibilidad de variables críticas.</b></div>';
 }
 function scenarios(p,m){const vals=[['Pesimista',.85],['Base',1],['Optimista',1.15]];return '<div class="tablewrap"><table><thead><tr><th>Escenario</th><th>VAN</th></tr></thead><tbody>'+vals.map(s=>{const mm=JSON.parse(JSON.stringify(m));for(let t=1;t<=p.n;t++){mm.rev[t]*=s[1];mm.prod[t]*=2-s[1];mm.sales[t]*=2-s[1]}const v=npv(p.wacc,calc(p,mm).cf);return '<tr><td>'+s[0]+'</td><td>'+money(v)+'</td></tr>'}).join('')+'</tbody></table></div>'}
 function report(p,m,r,van,tm,viable){return '<h3>Ficha técnica</h3><p><b>Proyecto:</b> '+esc(p.project)+'<br><b>Inversión inicial:</b> '+money(p.initialInvestment)+'<br><b>Horizonte:</b> '+p.n+' años<br><b>WACC:</b> '+pct(p.wacc)+'<br><b>Sector:</b> '+esc(p.sector)+'</p><div class="interp"><b>Conclusión:</b> '+(viable?'El proyecto es financieramente viable bajo los supuestos actuales.':'El proyecto requiere ajustes o validación adicional.')+' <b>Recomendación:</b> revisar variables críticas de ingresos, costos, financiación y demanda.</div>'}

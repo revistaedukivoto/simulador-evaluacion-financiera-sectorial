@@ -187,7 +187,7 @@ function runSimulation(){
   const viable=van>0&&Number.isFinite(r.irr)&&r.irr>p.wacc;
   $('status').innerHTML='<b class="'+(viable?'ok':'warn')+'">Evaluación ejecutada correctamente.</b> Inversión inicial: '+money(p.initialInvestment);
   $('results').innerHTML='<h3>Indicadores principales</h3><div class="metrics">'+metric('VAN',money(van),van>0)+' '+metric('TIR',pct(r.irr),r.irr>p.wacc)+' '+metric('TIRM',pct(tm),tm!==null&&tm>p.wacc)+' '+metric('Payback',Number.isFinite(pb)?pb.toFixed(2)+' años':'No recupera',Number.isFinite(pb))+'</div><div class="interp"><b>Conclusión:</b> '+(viable?'Los indicadores centrales respaldan la generación de valor bajo los supuestos actuales.':'Los resultados requieren ajustes o validación adicional antes de considerar el proyecto financieramente aceptable.')+'</div>'+integralIndicators(p,m,r,van,tm,pb,pbd)+'<h3>Flujo neto</h3><div class="tablewrap"><table><thead><tr><th>Año</th><th>Flujo</th></tr></thead><tbody>'+r.detail.map(x=>'<tr><td>'+x.t+'</td><td>'+money(x.cf)+'</td></tr>').join('')+'</tbody></table></div>';
-  $('iterations').innerHTML='<div class="tablewrap"><table><thead><tr><th>Iteración</th><th>Tasa</th><th>f(r)</th><th>f′(r)</th><th>Nueva tasa</th><th>Error</th></tr></thead><tbody>'+r.its.map(x=>'<tr><td>'+x.i+'</td><td>'+pct(x.r)+'</td><td>'+num(x.f)+'</td><td>'+num(x.d)+'</td><td>'+pct(x.nr)+'</td><td>'+num(x.err)+'</td></tr>').join('')+'</tbody></table><p class="muted">TIR final: '+pct(r.irr)+' · Payback descontado: '+(Number.isFinite(pbd)?pbd.toFixed(2)+' años':'No recupera dentro del horizonte')+'</p></div>';
+  $('iterations').innerHTML=mathProcedure(p,m,r,van,tm,pb,pbd);
   $('sectorInfo').innerHTML=sectorText(p);$('sectorAnalysis').innerHTML=sectorAnalysis(p,m,r);$('macroAnalysis').innerHTML=macroAnalysis(p,m,r,van);$('scenarioBox').innerHTML=scenarios(p,m);$('reportBox').innerHTML=report(p,m,r,van,tm,viable);
  }catch(e){$('status').innerHTML='<span class="bad"><b>Error:</b> '+esc(e.message)+'</span>'}
 }
@@ -248,6 +248,50 @@ function integralIndicators(p,m,r,van,tm,pb,pbd){
  const cards=rows.map(x=>'<div class="metric"><div class="label">'+x[0]+'</div><div class="value">'+x[2]+'</div><div class="'+(x[3]?'ok':'bad')+'">'+(x[3]?'Favorable':'Revisar')+'</div></div>').join('');
  const detail=rows.map(x=>'<tr><td><b>'+x[0]+'</b></td><td>'+x[2]+'</td><td>'+(x[3]?'Cumple':'No cumple / revisar')+'</td><td>'+x[4]+'</td></tr>').join('');
  return '<div class="sector-section"><h3>Indicadores financieros integrales</h3><div class="metrics">'+cards+'</div><div class="tablewrap" style="margin-top:14px"><table class="sector-table"><thead><tr><th>Indicador</th><th>Resultado</th><th>Estado</th><th>Criterio e interpretación</th></tr></thead><tbody>'+detail+'</tbody></table></div><div class="sector-conclusion"><b>Lectura financiera integral:</b> el resultado no debe evaluarse por un indicador aislado. VAN y EVA evalúan creación de valor; TIR/TIRM la rentabilidad; B/C y ROI la relación entre beneficios y recursos; DSCR y coberturas la capacidad de atender deuda; ROA/ROE el rendimiento del capital; y punto de equilibrio/margen de seguridad la resistencia operativa.</div></div>';
+}
+function mathProcedure(p,m,r,van,tm,pb,pbd){
+ const cf=r.cf, n=p.n, initial=p.initialInvestment, rate=p.wacc;
+ const pvPos=cf.reduce((s,x,t)=>s+(x>0?x/Math.pow(1+rate,t):0),0);
+ const pvNeg=-cf.reduce((s,x,t)=>s+(x<0?x/Math.pow(1+rate,t):0),0);
+ const bc=pvNeg>0?pvPos/pvNeg:null;
+ const totalNet=cf.slice(1).reduce((s,x)=>s+x,0)+cf[0];
+ const roi=initial>0?totalNet/initial:null;
+ const netIncome=r.detail.slice(1).reduce((s,x)=>s+x.net,0);
+ const debt=Math.max(0,m.credit.reduce((s,x)=>s+x,0)-m.debtAmort.reduce((s,x)=>s+x,0));
+ const equity=Math.max(0,initial-debt);
+ const roa=initial>0?netIncome/(initial*n):null;
+ const roe=equity>0?netIncome/(equity*n):null;
+ const ebitda=r.detail.slice(1).reduce((s,x)=>s+x.ebit+x.da,0);
+ const interest=r.detail.slice(1).reduce((s,x)=>s+(m.fin[x.t]||0),0);
+ const principal=m.debtAmort.slice(1).reduce((s,x)=>s+x,0);
+ const ds=interest+principal;
+ const cfads=r.detail.slice(1).reduce((s,x)=>s+x.net+x.da-x.capex,0);
+ const dscr=ds>0?cfads/ds:null;
+ const ic=interest>0?ebitda/interest:null;
+ const eva=ebitda-interest-(initial*rate);
+ const unitMargin=p.unitPrice-p.unitVarCost;
+ const fixed=m.prod.slice(1).reduce((s,x)=>s+x,0)+m.sales.slice(1).reduce((s,x)=>s+x,0)+m.admin.slice(1).reduce((s,x)=>s+x,0);
+ const beUnits=unitMargin>0?fixed/unitMargin:null;
+ const beSales=beUnits!==null?beUnits*p.unitPrice:null;
+ const avgSales=r.detail.slice(1).reduce((s,x)=>s+x.rev,0)/n;
+ const safety=avgSales>0&&beSales!==null?1-beSales/avgSales:null;
+ const f=(name,formula,sub,result,meaning)=>'<div class="formula"><b>'+name+'</b><br><br><b>Fórmula:</b> '+formula+'<br><b>Sustitución:</b> '+sub+'<br><b>Resultado:</b> '+result+'<br><b>Interpretación:</b> '+meaning+'</div>';
+ let html='<h3>Procedimiento matemático desarrollado</h3><p>El simulador muestra la fórmula, sustituye los valores del proyecto y presenta el resultado. Esto permite auditar el cálculo y distinguir el dato de la interpretación.</p>';
+ html+=f('1. VAN','VAN = Σ CFₜ/(1+r)ᵗ','r = '+pct(rate)+'; CF₀ = '+money(cf[0])+', flujos posteriores = '+cf.slice(1).map((x,i)=>'CF'+(i+1)+'='+money(x)).join('; '),money(van),van>0?'VAN positivo: el valor presente de los flujos supera la inversión al WACC utilizado.':'VAN no positivo: el proyecto no genera valor suficiente al WACC utilizado.');
+ html+=f('2. TIR','Σ CFₜ/(1+TIR)ᵗ = 0','Newton-Raphson aplicado sobre el flujo; tasa final = '+pct(r.irr),pct(r.irr),r.irr>rate?'La TIR supera el WACC y satisface el criterio de rentabilidad relativa.':'La TIR no supera el WACC; la rentabilidad exigida no está cubierta.');
+ html+='<div class="formula"><b>3. Newton-Raphson para la TIR</b><br><br><b>Fórmula:</b> rₙ₊₁ = rₙ − f(rₙ)/f′(rₙ)<br><b>Iteraciones:</b> '+r.its.length+'<br><div class="tablewrap"><table><thead><tr><th>i</th><th>rₙ</th><th>f(rₙ)</th><th>f′(rₙ)</th><th>rₙ₊₁</th><th>Error</th></tr></thead><tbody>'+r.its.map(x=>'<tr><td>'+x.i+'</td><td>'+pct(x.r)+'</td><td>'+num(x.f)+'</td><td>'+num(x.d)+'</td><td>'+pct(x.nr)+'</td><td>'+num(x.err)+'</td></tr>').join('')+'</tbody></table></div><b>Resultado:</b> '+pct(r.irr)+'. Se utiliza bisección como contraste cuando Newton-Raphson no converge.</div>';
+ html+=f('4. TIRM','TIRM = (FV positivos / |VP negativos|)^(1/n) − 1','Tasa de financiación = '+pct(p.finance)+'; tasa de reinversión = '+pct(p.reinvest),pct(tm),tm!==null?'La TIRM incorpora tasas distintas para financiar déficits y reinvertir excedentes.':'No es calculable con los flujos actuales.');
+ html+=f('5. Índice de rentabilidad','IR = VP(beneficios) / VP(costos)','VP beneficios = '+money(pvPos)+'; VP costos = '+money(pvNeg),bc===null?'No calculable':bc.toFixed(2),bc!==null&&bc>1?'Por encima de 1 indica que el valor presente de beneficios supera los costos.':'Un valor ≤ 1 indica que los beneficios presentes no superan los costos.');
+ html+=f('6. ROI','ROI = (beneficio neto acumulado / inversión inicial)','Beneficio neto acumulado = '+money(totalNet)+'; inversión = '+money(initial),pct(roi),roi!==null&&roi>0?'Retorno acumulado positivo sobre la inversión.':'Retorno acumulado no positivo.');
+ html+=f('7. ROA','ROA = utilidad neta / activos promedio','Utilidad neta acumulada = '+money(netIncome)+'; activos base = '+money(initial)+'; períodos = '+n,pct(roa),roa!==null&&roa>0?'El proyecto genera utilidad positiva respecto a los activos utilizados.':'La rentabilidad sobre activos requiere revisión.');
+ html+=f('8. ROE','ROE = utilidad neta / patrimonio promedio','Utilidad neta acumulada = '+money(netIncome)+'; patrimonio estimado = '+money(equity)+'; períodos = '+n,pct(roe),roe!==null&&roe>0?'El patrimonio obtiene rendimiento positivo bajo la estructura estimada.':'El rendimiento del patrimonio no es positivo o no puede calcularse.');
+ html+=f('9. DSCR','DSCR = CFADS / servicio de deuda','CFADS = '+money(cfads)+'; servicio de deuda = '+money(ds),ds>0?dscr.toFixed(2)+'x':'No hay deuda','Un DSCR ≥ 1,30x se considera una referencia prudencial de capacidad para atender deuda.');
+ html+=f('10. Cobertura de intereses','Cobertura = EBITDA / intereses','EBITDA = '+money(ebitda)+'; intereses = '+money(interest),ic===null?'No hay intereses':ic.toFixed(2)+'x',ic===null?'No existe carga financiera de intereses en el flujo informado.':ic>=2?'La generación operativa cubre al menos dos veces los intereses.':'La cobertura es reducida y requiere vigilancia.');
+ html+=f('11. EVA','EVA = NOPAT aproximado − (capital invertido × WACC)','EBITDA − intereses = '+money(ebitda-interest)+'; capital = '+money(initial)+'; WACC = '+pct(rate),money(eva),eva>0?'Se observa creación de valor por encima del costo de capital bajo esta aproximación.':'No se observa creación de valor suficiente bajo esta aproximación.');
+ html+=f('12. Punto de equilibrio','Q* = Costos fijos / (Precio unitario − Costo variable unitario)','Costos fijos = '+money(fixed)+'; precio = '+money(p.unitPrice)+'; costo variable unitario = '+money(p.unitVarCost),beUnits===null?'No calculable':num(beUnits)+' unidades',beUnits!==null?'El proyecto debe superar este volumen para cubrir los costos considerados.':'No existe margen unitario positivo para determinar el punto de equilibrio.');
+ html+=f('13. Margen de seguridad','MS = 1 − Ventas de equilibrio / Ventas promedio','Ventas equilibrio = '+money(beSales)+'; ventas promedio = '+money(avgSales),safety===null?'No calculable':pct(safety),safety!==null&&safety>0?'Existe un colchón de ventas antes de alcanzar el punto de equilibrio.':'El proyecto se encuentra en el punto o por debajo del equilibrio.');
+ html+='<div class="sector-conclusion"><b>Payback simple:</b> '+(Number.isFinite(pb)?pb.toFixed(2)+' años':'No recupera')+' · <b>Payback descontado:</b> '+(Number.isFinite(pbd)?pbd.toFixed(2)+' años':'No recupera dentro del horizonte')+'. La interpretación final debe contrastar recuperación, creación de valor, rentabilidad, riesgo financiero y sensibilidad.</div>';
+ return html;
 }
 function metric(label,value,good){return '<div class="metric"><div class="label">'+label+'</div><div class="value">'+value+'</div><div class="'+(good?'ok':'bad')+'">'+(good?'Favorable':'Revisar')+'</div></div>'}
 function sectorText(p){

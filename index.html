@@ -242,6 +242,7 @@ function integralIndicators(p,m,r,van,tm,pb,pbd){
   ['Deuda / EBITDA',debtEbitda,debtEbitda===null?'No calculable':debtEbitda.toFixed(2)+'x',debtEbitda===null||debtEbitda<=3,'Como referencia orientativa, ≤ 3x representa menor presión de endeudamiento operativo.'],
   ['Apalancamiento',leverage,leverage===null?'No calculable':leverage.toFixed(2)+'x',leverage===null||leverage<=2.5,'Mide activos/inversión financiados por cada unidad de patrimonio estimado.'],
   ['Servicio de deuda / flujo',serviceFlow,pct(serviceFlow),serviceFlow===null||serviceFlow<=.8,'Una proporción menor implica mayor flujo disponible después de atender la deuda.'],
+  ['Capacidad máxima de endeudamiento',maxDebtCapacity,money(maxDebtCapacity),maxDebtCapacity>=debt,'Estimación orientativa del principal máximo sostenible con CFADS promedio, DSCR objetivo de 1,30x y una anualidad a la tasa de financiación.'],
   ['EVA',eva,money(eva),eva>0,'EVA positivo indica creación de valor después de remunerar el capital al WACC.'],
   ['Flujo de caja libre',fcf.reduce((s,x)=>s+x,0),money(fcf.reduce((s,x)=>s+x,0)),fcf.reduce((s,x)=>s+x,0)>0,'Representa el flujo disponible después de operación e inversión, antes de considerar la distribución financiera.'],
   ['Flujo de caja para accionista',fcfe.slice(1).reduce((s,x)=>s+x,0),money(fcfe.slice(1).reduce((s,x)=>s+x,0)),fcfe.slice(1).reduce((s,x)=>s+x,0)>0,'Refleja el flujo que queda para el accionista después del efecto de financiación y servicio de deuda.'],

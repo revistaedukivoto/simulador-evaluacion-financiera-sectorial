@@ -170,7 +170,7 @@ function calc(p,m){
  const cf=Array(p.n+1).fill(0),detail=[];
  for(let t=0;t<=p.n;t++){
   if(t===0){cf[0]=-p.initialInvestment+m.credit[0];detail.push({t:0,rev:0,op:0,da:0,ebit:0,tax:0,net:0,capex:p.initialInvestment,cf:cf[0]});continue}
-  const rev=m.rev[t],op=m.prod[t]+m.sales[t]+m.fin[t]+m.admin[t],da=m.depTech[t]+m.depVeh[t]+m.depOffice[t]+m.depFurniture[t]+m.depComp[t],ebit=rev-op-da,ebt=ebit-m.amort[t],tx=Math.max(0,ebt*p.tax),net=ebt-tx,capex=m.invTech[t]+m.invVeh[t]+m.invOffice[t]+m.invFurniture[t]+m.invComp[t]+m.invIntang[t]+m.invReal[t]+m.wcInv[t],recovery=m.wcRec[t]+m.salvage[t];
+  const rev=m.rev[t],op=m.prod[t]+m.sales[t]+m.admin[t],interest=m.fin[t],da=m.depTech[t]+m.depVeh[t]+m.depOffice[t]+m.depFurniture[t]+m.depComp[t],ebit=rev-op-da,ebt=ebit-interest-m.amort[t],tx=Math.max(0,ebt*p.tax),net=ebt-tx,capex=m.invTech[t]+m.invVeh[t]+m.invOffice[t]+m.invFurniture[t]+m.invComp[t]+m.invIntang[t]+m.invReal[t]+m.wcInv[t],recovery=m.wcRec[t]+m.salvage[t];
   cf[t]=net+da+m.amort[t]-capex+recovery+m.credit[t]-m.debtAmort[t];detail.push({t,rev,op,da,ebit,tax:tx,net,capex,cf:cf[t]});
  }return{cf,detail};
 }

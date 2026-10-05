@@ -409,7 +409,31 @@ function scenarios(p,m){
  '<div class="sector-section"><h3>4. Lectura de viabilidad bajo incertidumbre</h3><div class="sector-conclusion"><b>Diagnóstico:</b> '+verdict+'<br><br><b>Conclusión:</b> un VAN positivo en el caso base no es suficiente para afirmar robustez. La decisión debe considerar la distribución de resultados entre escenarios y la sensibilidad de las variables críticas.</div></div>';
 }
 function matrixForSensitivity(p,m){return calc(p,m)}
-function report(p,m,r,van,tm,viable){return '<h3>Ficha técnica</h3><p><b>Proyecto:</b> '+esc(p.project)+'<br><b>Inversión inicial:</b> '+money(p.initialInvestment)+'<br><b>Horizonte:</b> '+p.n+' años<br><b>WACC:</b> '+pct(p.wacc)+'<br><b>Sector:</b> '+esc(p.sector)+'</p><div class="interp"><b>Conclusión:</b> '+(viable?'El proyecto es financieramente viable bajo los supuestos actuales.':'El proyecto requiere ajustes o validación adicional.')+' <b>Recomendación:</b> revisar variables críticas de ingresos, costos, financiación y demanda.</div>'}
+function report(p,m,r,van,tm,viable){
+ const ir=irrNewton(r.cf),tir=ir.converged?ir.r:irrBisection(r.cf),pb=payback(r.cf,0),pbd=payback(r.cf,p.wacc);
+ const pvB=r.cf.reduce((s,x,t)=>s+(x>0?x/Math.pow(1+p.wacc,t):0),0),pvC=-r.cf.reduce((s,x,t)=>s+(x<0?x/Math.pow(1+p.wacc,t):0),0),bc=pvC>0?pvB/pvC:null;
+ const total=r.cf.reduce((s,x)=>s+x,0),roi=p.initialInvestment>0:0?0:total/p.initialInvestment;
+ const sector=sectorText(p), macroGrowth=Number($('macroGrowth').value)||0,ipc=Number($('ipc').value)||0,ipp=Number($('ipp').value)||0;
+ const macroRisk=(ipc>6?1:0)+(ipp>3?1:0)+(macroGrowth<1?1:0);
+ const scenariosText=van>0&&tir>p.wacc?'El caso base supera el costo de capital.':'El caso base no supera completamente el criterio de costo de capital.';
+ const decision=van>0&&tir>p.wacc&&Number.isFinite(pb)?'VIABLE BAJO LOS SUPUESTOS ACTUALES':'NO CONCLUYENTE / REQUIERE AJUSTES';
+ const recommendations=[];
+ if(van<=0)recommendations.push('revisar estructura de ingresos, costos y/o inversión inicial para recuperar creación de valor');
+ if(tir<=p.wacc)recommendations.push('revisar rentabilidad exigida y estructura de financiación');
+ if(!Number.isFinite(pbd))recommendations.push('fortalecer generación de caja para acelerar la recuperación descontada');
+ if(macroRisk>0)recommendations.push('incorporar escenarios macroeconómicos más conservadores y probar inflación, costos y demanda');
+ if(recommendations.length===0)recommendations.push('mantener control sobre variables críticas y validar los supuestos sectoriales antes de invertir');
+ return '<h2>Informe integral de evaluación financiera</h2>'+
+ '<div class="notice"><b>Dictamen:</b> '+decision+'. Este informe integra rentabilidad, creación de valor, recuperación de la inversión, estructura sectorial, contexto macroeconómico y sensibilidad.</div>'+
+ '<div class="sector-section"><h3>1. Ficha técnica</h3><p><b>Proyecto:</b> '+esc(p.project)+'<br><b>Sector:</b> '+esc(p.sector)+' · <b>CIIU:</b> '+esc(p.ciiu||'No especificado')+'<br><b>Territorio:</b> '+(p.region==='tolima'?'Tolima':'Nacional')+'<br><b>Inversión inicial:</b> '+money(p.initialInvestment)+'<br><b>Horizonte:</b> '+p.n+' años · <b>WACC:</b> '+pct(p.wacc)+'<br><b>Impuesto:</b> '+pct(p.tax)+'</p></div>'+
+ '<div class="sector-section"><h3>2. Resultados financieros centrales</h3><div class="metrics">'+metric('VAN',money(van),van>0)+metric('TIR',pct(tir),tir>p.wacc)+metric('TIRM',pct(tm),tm!==null&&tm>p.wacc)+metric('B/C',bc===null?'—':bc.toFixed(2),bc!==null&&bc>1)+metric('Payback',Number.isFinite(pb)?pb.toFixed(2)+' años':'No recupera',Number.isFinite(pb))+'</div><p><b>Lectura:</b> '+scenariosText+' El B/C '+(bc!==null?(bc>1?'supera':'no supera'):'no es calculable')+' el umbral de 1.</p></div>'+
+ '<div class="sector-section"><h3>3. Diagnóstico sectorial</h3><p>'+sector+'</p><p>La evaluación sectorial debe interpretarse junto con utilización de capacidad, margen unitario, productividad, recurrencia y punto de equilibrio, porque estas variables explican la generación de los flujos.</p></div>'+
+ '<div class="sector-section"><h3>4. Diagnóstico macroeconómico</h3><p>Con crecimiento de referencia de <b>'+macroGrowth.toFixed(2)+'%</b>, IPC de <b>'+ipc.toFixed(2)+'%</b> e IPP de <b>'+ipp.toFixed(2)+'%</b>, el entorno presenta '+(macroRisk>=2?'riesgos macroeconómicos relevantes':macroRisk===1?'al menos una señal de riesgo que requiere sensibilidad':'sin una señal macroeconómica dominante')+'.</p><p>La interpretación debe trasladarse a demanda, precios, costos y tasa de descuento, y no quedarse como información descriptiva.</p></div>'+
+ '<div class="sector-section"><h3>5. Incertidumbre y sensibilidad</h3><p>'+scenariosText+' El análisis de sensibilidad identifica las variables cuyo cambio modifica con mayor intensidad el VAN; esas variables deben priorizarse en la gestión de riesgo.</p></div>'+
+ '<div class="sector-section"><h3>6. Recuperación y estructura de financiación</h3><p><b>Payback simple:</b> '+(Number.isFinite(pb)?pb.toFixed(2)+' años':'no se recupera')+' · <b>Payback descontado:</b> '+(Number.isFinite(pbd)?pbd.toFixed(2)+' años':'no se recupera dentro del horizonte')+'.</p></div>'+
+ '<div class="sector-section"><h3>7. Dictamen de viabilidad</h3><div class="sector-conclusion"><b>'+decision+'</b><br><br>'+ (viable?'El proyecto presenta creación de valor bajo el WACC y una rentabilidad relativa favorable.':'Los resultados actuales no permiten recomendar la inversión sin ajustes o validación adicional.')+'<br><br><b>Recomendaciones:</b><ul>'+recommendations.map(x=>'<li>'+x+'.</li>').join('')+'</ul></div></div>'+
+ '<div class="sector-section"><h3>8. Trazabilidad de la decisión</h3><p>Supuestos del proyecto → flujo de caja → VAN/TIR/TIRM → indicadores integrales → análisis sectorial → contexto macroeconómico → escenarios y sensibilidad → dictamen. La decisión debe revisarse si cambian los supuestos críticos.</p></div>';
+}
 function activate(id){document.querySelectorAll('.module').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('.module-btn').forEach(x=>x.classList.toggle('active',x.dataset.module===id));document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'})}
 document.querySelectorAll('.module-btn').forEach(b=>b.addEventListener('click',()=>activate(b.dataset.module)));
 $('enter').addEventListener('click',()=>{$('welcome').classList.add('hidden');$('app').classList.remove('hidden');activate('m1')});

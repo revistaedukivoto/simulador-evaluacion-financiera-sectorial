@@ -209,7 +209,10 @@ function integralIndicators(p,m,r,van,tm,pb,pbd){
  const interest=r.detail.slice(1).reduce((s,x)=>s+(m.fin[x.t]||0),0);
  const principal=m.debtAmort.slice(1).reduce((s,x)=>s+x,0);
  const debtService=interest+principal;
- const cfads=r.detail.slice(1).reduce((s,x)=>s+x.net+x.da+x.capex*-1,0);
+ const cashTaxes=r.detail.slice(1).reduce((s,x)=>s+x.tax,0);
+ const wcNet=r.detail.slice(1).reduce((s,x)=>s+(m.wcInv[x.t]||0)-(m.wcRec[x.t]||0),0);
+ const cashCapex=r.detail.slice(1).reduce((s,x)=>s+x.capex,0);
+ const cfads=ebitda-cashTaxes-cashCapex;
  const dscr=debtService>0?cfads/debtService:null;
  const interestCoverage=interest>0?ebitda/interest:null;
  const debtEquity=equity>0?debt/equity:null;
@@ -220,8 +223,10 @@ function integralIndicators(p,m,r,van,tm,pb,pbd){
  const annualDebtCapacity=Math.max(0,annualCfads/1.3);
  const annuityFactor=p.finance>0?(1-Math.pow(1+p.finance,-p.n))/p.finance:p.n;
  const maxDebtCapacity=annualDebtCapacity*annuityFactor;
- const eva=ebitda-interest-(invested*disc);
- const fcf=r.detail.map((x,i)=>i===0?x.cf:x.net+x.da-x.capex+(m.wcRec[i]||0)+(m.salvage[i]||0));
+ const nopat=r.detail.slice(1).reduce((s,x)=>s+(x.ebit-Math.max(0,x.ebit*p.tax)),0);
+ const investedCapital=invested;
+ const eva=nopat-(investedCapital*disc);
+ const fcf=r.detail.map((x,i)=>i===0?-p.initialInvestment:x.net+x.da-x.capex+(m.wcRec[i]||0)+(m.salvage[i]||0)+x.tax+x.net*0);
  const fcfe=r.cf;
  const rev=r.detail.slice(1).reduce((s,x)=>s+x.rev,0);
  const fixed=(m.prod.slice(1).reduce((s,x)=>s+x,0)+m.sales.slice(1).reduce((s,x)=>s+x,0)+m.admin.slice(1).reduce((s,x)=>s+x,0));

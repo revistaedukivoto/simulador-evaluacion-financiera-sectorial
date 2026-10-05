@@ -412,7 +412,7 @@ function matrixForSensitivity(p,m){return calc(p,m)}
 function report(p,m,r,van,tm,viable){
  const ir=irrNewton(r.cf),tir=ir.converged?ir.r:irrBisection(r.cf),pb=payback(r.cf,0),pbd=payback(r.cf,p.wacc);
  const pvB=r.cf.reduce((s,x,t)=>s+(x>0?x/Math.pow(1+p.wacc,t):0),0),pvC=-r.cf.reduce((s,x,t)=>s+(x<0?x/Math.pow(1+p.wacc,t):0),0),bc=pvC>0?pvB/pvC:null;
- const total=r.cf.reduce((s,x)=>s+x,0),roi=p.initialInvestment>0:0?0:total/p.initialInvestment;
+ const total=r.cf.reduce((s,x)=>s+x,0),roi=p.initialInvestment>0?total/p.initialInvestment:null;
  const sector=sectorText(p), macroGrowth=Number($('macroGrowth').value)||0,ipc=Number($('ipc').value)||0,ipp=Number($('ipp').value)||0;
  const macroRisk=(ipc>6?1:0)+(ipp>3?1:0)+(macroGrowth<1?1:0);
  const scenariosText=van>0&&tir>p.wacc?'El caso base supera el costo de capital.':'El caso base no supera completamente el criterio de costo de capital.';

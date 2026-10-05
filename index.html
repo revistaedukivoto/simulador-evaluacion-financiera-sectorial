@@ -226,7 +226,7 @@ function integralIndicators(p,m,r,van,tm,pb,pbd){
  const nopat=r.detail.slice(1).reduce((s,x)=>s+(x.ebit-Math.max(0,x.ebit*p.tax)),0);
  const investedCapital=invested;
  const eva=nopat-(investedCapital*disc);
- const fcf=r.detail.map((x,i)=>i===0?-p.initialInvestment:x.net+x.da-x.capex+(m.wcRec[i]||0)+(m.salvage[i]||0)+x.tax+x.net*0);
+ const fcf=r.detail.map((x,i)=>i===0?-p.initialInvestment:(x.ebit-Math.max(0,x.ebit*p.tax))+x.da-x.capex+(m.wcRec[i]||0)+(m.salvage[i]||0));
  const fcfe=r.cf;
  const rev=r.detail.slice(1).reduce((s,x)=>s+x.rev,0);
  const fixed=(m.prod.slice(1).reduce((s,x)=>s+x,0)+m.sales.slice(1).reduce((s,x)=>s+x,0)+m.admin.slice(1).reduce((s,x)=>s+x,0));

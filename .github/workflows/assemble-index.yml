@@ -1,0 +1,43 @@
+name: Assemble corrected simulator
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  assemble:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Assemble index.html
+        run: cat .build/index.part1 .build/index.part2 .build/index.part3 .build/index.part4 .build/index.part5 .build/index.part6 .build/index.part7 .build/index.part8 > index.html
+
+      - name: Validate JavaScript syntax
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          html = Path('index.html').read_text(encoding='utf-8')
+          js = '\n'.join(re.findall(r'<script[^>]*>(.*?)</script>', html, re.S))
+          Path('/tmp/index.js').write_text(js, encoding='utf-8')
+          PY
+          node --check /tmp/index.js
+
+      - name: Commit assembled index
+        run: |
+          rm -rf .build
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html .github/workflows/assemble-index.yml
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "fix: publish corrected simulator index"
+            git push
+          fi

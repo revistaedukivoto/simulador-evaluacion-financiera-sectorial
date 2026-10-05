@@ -130,7 +130,7 @@ button,input,select{font:inherit}.hidden{display:none!important}.screen{min-heig
 
  <section id="m8" class="module">
   <h2>8. Escenarios y sensibilidad</h2>
-  <p>Los escenarios se generan a partir del flujo base. Se presentan únicamente cuando la evaluación ha sido ejecutada.</p>
+  <p>Esta capa no se limita a mostrar tres VAN. Recalcula el proyecto bajo escenarios alternativos y mide qué variables producen los mayores cambios en el valor del proyecto.</p>
   <div id="scenarioBox"></div>
  </section>
 
@@ -263,7 +263,50 @@ function macroAnalysis(p,m,r,van){
  '</tbody></table></div></div>'+
  '<div class="sector-conclusion"><b>Dictamen macroeconómico:</b> '+overall+' <b>El resultado debe leerse conjuntamente con la evaluación sectorial, los indicadores financieros y la sensibilidad de variables críticas.</b></div>';
 }
-function scenarios(p,m){const vals=[['Pesimista',.85],['Base',1],['Optimista',1.15]];return '<div class="tablewrap"><table><thead><tr><th>Escenario</th><th>VAN</th></tr></thead><tbody>'+vals.map(s=>{const mm=JSON.parse(JSON.stringify(m));for(let t=1;t<=p.n;t++){mm.rev[t]*=s[1];mm.prod[t]*=2-s[1];mm.sales[t]*=2-s[1]}const v=npv(p.wacc,calc(p,mm).cf);return '<tr><td>'+s[0]+'</td><td>'+money(v)+'</td></tr>'}).join('')+'</tbody></table></div>'}
+function scenarios(p,m){
+ const make=(label,factor,macro=0)=>{
+  const mm=JSON.parse(JSON.stringify(m));
+  for(let t=1;t<=p.n;t++){
+   mm.rev[t]*=factor;
+   mm.prod[t]*=(2-factor)*(1+macro);
+   mm.sales[t]*=(2-factor)*(1+macro);
+   mm.fin[t]*=(1+macro);
+   mm.admin[t]*=(1+macro);
+  }
+  const z=calc(p,mm),van=npv(p.wacc,z.cf),ir=irrNewton(z.cf),br=irrBisection(z.cf),tir=ir.converged?ir.r:br;
+  return {label,van,tir,pb:payback(z.cf,0),pbd:payback(z.cf,p.wacc),cf:z.cf};
+ };
+ const vals=[make('Pesimista',.85,.08),make('Base',1,0),make('Optimista',1.15,-.03)];
+ const base=vals[1];
+ const table=vals.map(x=>'<tr><td><b>'+x.label+'</b></td><td>'+money(x.van)+'</td><td>'+pct(x.tir)+'</td><td>'+(Number.isFinite(x.pb)?x.pb.toFixed(2)+' años':'No recupera')+'</td><td>'+(Number.isFinite(x.pbd)?x.pbd.toFixed(2)+' años':'No recupera')+'</td><td>'+(x.van>0&&Number.isFinite(x.tir)&&x.tir>p.wacc?'Favorable':'Revisar')+'</td></tr>').join('');
+ const vars=[
+  ['Ingresos',x=>{const mm=JSON.parse(JSON.stringify(m));for(let t=1;t<=p.n;t++)mm.rev[t]*=x;return npv(p.wacc,calc(p,mm).cf)}],
+  ['Costos de producción',x=>{const mm=JSON.parse(JSON.stringify(m));for(let t=1;t<=p.n;t++)mm.prod[t]*=x;return npv(p.wacc,calc(p,mm).cf)}],
+  ['Costos de ventas',x=>{const mm=JSON.parse(JSON.stringify(m));for(let t=1;t<=p.n;t++)mm.sales[t]*=x;return npv(p.wacc,calc(p,mm).cf)}],
+  ['Costos administrativos',x=>{const mm=JSON.parse(JSON.stringify(m));for(let t=1;t<=p.n;t++)mm.admin[t]*=x;return npv(p.wacc,calc(p,mm).cf)}],
+  ['WACC',x=>npv(x,matrixForSensitivity(p,m).cf)]
+ ];
+ const sens=[];
+ for(const [name,fn] of vars){
+  let down,up;
+  if(name==='WACC'){down=fn(Math.max(-.5,p.wacc-.02));up=fn(p.wacc+.02)}
+  else {down=fn(.8);up=fn(1.2)}
+  sens.push({name,down,up,range:Math.abs(up-down)});
+ }
+ sens.sort((a,b)=>b.range-a.range);
+ const maxRange=Math.max(...sens.map(x=>x.range),1);
+ const sensRows=sens.map(x=>{
+   const low=x.down<base.van?'↓':'↑', high=x.up<base.van?'↓':'↑';
+   return '<tr><td><b>'+x.name+'</b></td><td>'+money(x.down)+' '+low+'</td><td>'+money(x.up)+' '+high+'</td><td><div class="bar"><i style="width:'+Math.max(2,Math.min(100,x.range/maxRange*100))+'%"></i></div>'+money(x.range)+'</td></tr>';
+ }).join('');
+ const dominant=sens[0];
+ const verdict=vals[0].van<0&&vals[2].van>0?'La viabilidad es sensible al escenario: cambia entre destrucción y creación de valor.':vals[0].van>0?'Incluso el escenario pesimista conserva VAN positivo, aunque deben revisarse los riesgos de ejecución.':vals[2].van<=0?'Incluso el escenario optimista no alcanza VAN positivo; el problema parece estructural y requiere rediseño.':'Los escenarios muestran una respuesta intermedia; la variable dominante debe ser sometida a pruebas adicionales.';
+ return '<div class="sector-section"><h3>1. Comparación integral de escenarios</h3><div class="tablewrap"><table class="sector-table"><thead><tr><th>Escenario</th><th>VAN</th><th>TIR</th><th>Payback</th><th>Payback descontado</th><th>Lectura</th></tr></thead><tbody>'+table+'</tbody></table></div></div>'+
+ '<div class="sector-section"><h3>2. Sensibilidad de variables críticas</h3><p>Se modifica una variable a la vez. Para ingresos y costos se utiliza una banda de ±20%; para el WACC se prueban 2 puntos porcentuales alrededor del valor base.</p><div class="tablewrap"><table class="sector-table"><thead><tr><th>Variable</th><th>Escenario inferior</th><th>Escenario superior</th><th>Amplitud del efecto sobre VAN</th></tr></thead><tbody>'+sensRows+'</tbody></table></div></div>'+
+ '<div class="sector-section"><h3>3. Variable de mayor sensibilidad</h3><div class="sector-conclusion"><b>'+dominant.name+'</b> presenta la mayor amplitud de cambio sobre el VAN dentro de las pruebas realizadas: <b>'+money(dominant.range)+'</b>. Esta variable debe recibir prioridad en la gestión del riesgo, la validación de supuestos y la construcción del escenario adverso.</div></div>'+
+ '<div class="sector-section"><h3>4. Lectura de viabilidad bajo incertidumbre</h3><div class="sector-conclusion"><b>Diagnóstico:</b> '+verdict+'<br><br><b>Conclusión:</b> un VAN positivo en el caso base no es suficiente para afirmar robustez. La decisión debe considerar la distribución de resultados entre escenarios y la sensibilidad de las variables críticas.</div></div>';
+}
+function matrixForSensitivity(p,m){return calc(p,m)}
 function report(p,m,r,van,tm,viable){return '<h3>Ficha técnica</h3><p><b>Proyecto:</b> '+esc(p.project)+'<br><b>Inversión inicial:</b> '+money(p.initialInvestment)+'<br><b>Horizonte:</b> '+p.n+' años<br><b>WACC:</b> '+pct(p.wacc)+'<br><b>Sector:</b> '+esc(p.sector)+'</p><div class="interp"><b>Conclusión:</b> '+(viable?'El proyecto es financieramente viable bajo los supuestos actuales.':'El proyecto requiere ajustes o validación adicional.')+' <b>Recomendación:</b> revisar variables críticas de ingresos, costos, financiación y demanda.</div>'}
 function activate(id){document.querySelectorAll('.module').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('.module-btn').forEach(x=>x.classList.toggle('active',x.dataset.module===id));document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'})}
 document.querySelectorAll('.module-btn').forEach(b=>b.addEventListener('click',()=>activate(b.dataset.module)));

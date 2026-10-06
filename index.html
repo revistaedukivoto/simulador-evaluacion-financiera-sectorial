@@ -444,7 +444,13 @@ function scenarios(p,m){
   const z=calc(p,mm),van=npv(p.wacc,z.cf),ir=irrNewton(z.cf),br=irrBisection(z.cf),tir=ir.converged?ir.r:br;
   return {label,van,tir,pb:payback(z.cf,0),pbd:payback(z.cf,p.wacc),cf:z.cf};
  };
- const vals=[make('Pesimista',.85,.08),make('Base',1,0),make('Optimista',1.15,-.03)];
+ const macroDemand=Number($('macroDemand').value)||0, macroGrowth=Number($('macroGrowth').value)||0, macroInflation=Number($('ipc').value)||0, macroIPP=Number($('ipp').value)||0;
+ const macroStress=Math.max(0,Math.abs(macroDemand)/100+Math.max(0,macroInflation-6)/100+Math.max(0,macroIPP-3)/100);
+ const pessimisticRevenue=.85*(1+Math.min(0,macroDemand)/100);
+ const optimisticRevenue=1.15*(1+Math.max(0,macroDemand)/100);
+ const pessimisticCost=0.08+Math.max(0,macroInflation-6)/100+Math.max(0,macroIPP-3)/100;
+ const optimisticCost=-.03-Math.max(0,macroInflation-6)/200;
+ const vals=[make('Pesimista',Math.max(.5,pessimisticRevenue),pessimisticCost),make('Base',1,0),make('Optimista',Math.min(1.5,optimisticRevenue),optimisticCost)];
  const base=vals[1];
  const table=vals.map(x=>'<tr><td><b>'+x.label+'</b></td><td>'+money(x.van)+'</td><td>'+pct(x.tir)+'</td><td>'+(Number.isFinite(x.pb)?x.pb.toFixed(2)+' años':'No recupera')+'</td><td>'+(Number.isFinite(x.pbd)?x.pbd.toFixed(2)+' años':'No recupera')+'</td><td>'+(x.van>0&&Number.isFinite(x.tir)&&x.tir>p.wacc?'Favorable':'Revisar')+'</td></tr>').join('');
  const vars=[
@@ -470,8 +476,8 @@ function scenarios(p,m){
  const dominant=sens[0];
  const verdict=vals[0].van<0&&vals[2].van>0?'La viabilidad es sensible al escenario: cambia entre destrucción y creación de valor.':vals[0].van>0?'Incluso el escenario pesimista conserva VAN positivo, aunque deben revisarse los riesgos de ejecución.':vals[2].van<=0?'Incluso el escenario optimista no alcanza VAN positivo; el problema parece estructural y requiere rediseño.':'Los escenarios muestran una respuesta intermedia; la variable dominante debe ser sometida a pruebas adicionales.';
  return '<div class="sector-section"><h3>1. Comparación integral de escenarios</h3><div class="tablewrap"><table class="sector-table"><thead><tr><th>Escenario</th><th>VAN</th><th>TIR</th><th>Payback</th><th>Payback descontado</th><th>Lectura</th></tr></thead><tbody>'+table+'</tbody></table></div></div>'+
- '<div class="sector-section"><h3>2. Sensibilidad de variables críticas</h3><p>Se modifica una variable a la vez. Para ingresos y costos se utiliza una banda de ±20%; para el WACC se prueban 2 puntos porcentuales alrededor del valor base.</p><div class="tablewrap"><table class="sector-table"><thead><tr><th>Variable</th><th>Escenario inferior</th><th>Escenario superior</th><th>Amplitud del efecto sobre VAN</th></tr></thead><tbody>'+sensRows+'</tbody></table></div></div>'+
- '<div class="sector-section"><h3>3. Variable de mayor sensibilidad</h3><div class="sector-conclusion"><b>'+dominant.name+'</b> presenta la mayor amplitud de cambio sobre el VAN dentro de las pruebas realizadas: <b>'+money(dominant.range)+'</b>. Esta variable debe recibir prioridad en la gestión del riesgo, la validación de supuestos y la construcción del escenario adverso.</div></div>'+
+ '<div class="sector-section"><h3>2. Sensibilidad de variables críticas</h3><p>Se modifica una variable a la vez. Para ingresos y costos se utiliza una banda de ±20%; para el WACC se prueban 2 puntos porcentuales alrededor del valor base. Los escenarios principales incorporan además los supuestos macroeconómicos introducidos en el módulo 7.</p><div class="tablewrap"><table class="sector-table"><thead><tr><th>Variable</th><th>Escenario inferior</th><th>Escenario superior</th><th>Amplitud del efecto sobre VAN</th></tr></thead><tbody>'+sensRows+'</tbody></table></div></div>'+
+ '<div class="sector-section"><h3>3. Variable de mayor sensibilidad</h3><div class="sector-conclusion"><b>'+dominant.name+'</b> presenta la mayor amplitud de cambio sobre el VAN dentro de las pruebas realizadas: <b>'+money(dominant.range)+'</b>. Esta variable debe recibir prioridad en la gestión del riesgo, la validación de supuestos y la construcción del escenario adverso. <br><br><b>Prueba macro:</b> demanda '+(macroDemand>=0?'+':'')+macroDemand.toFixed(2)+'%, crecimiento '+macroGrowth.toFixed(2)+'%, IPC '+macroInflation.toFixed(2)+'%, IPP '+macroIPP.toFixed(2)+'%.</div></div>'+
  '<div class="sector-section"><h3>4. Lectura de viabilidad bajo incertidumbre</h3><div class="sector-conclusion"><b>Diagnóstico:</b> '+verdict+'<br><br><b>Conclusión:</b> un VAN positivo en el caso base no es suficiente para afirmar robustez. La decisión debe considerar la distribución de resultados entre escenarios y la sensibilidad de las variables críticas.</div></div>';
 }
 function matrixForSensitivity(p,m){return calc(p,m)}

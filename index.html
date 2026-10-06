@@ -251,13 +251,16 @@ function integralIndicators(p,m,r,van,tm,pb,pbd){
  const fcf=debtBalance.reduce((s,x)=>s+x.fcf,0);
  const fcfe=r.cf.slice(1).reduce((s,x)=>s+x,0);
  const rev=r.detail.slice(1).reduce((s,x)=>s+x.rev,0);
- const fixed=m.prod.slice(1).reduce((s,x)=>s+x,0)+m.sales.slice(1).reduce((s,x)=>s+x,0)+m.admin.slice(1).reduce((s,x)=>s+x,0);
+ const year1OperatingCashCosts=(m.prod[1]||0)+(m.sales[1]||0)+(m.admin[1]||0);
+ const year1VariableCost=Math.max(0,(p.units||0)*(p.unitVarCost||0));
+ const fixed=Math.max(0,year1OperatingCashCosts-year1VariableCost);
  const unitMargin=p.unitPrice-p.unitVarCost;
  const breakUnits=unitMargin>0?fixed/unitMargin:null;
  const breakSales=breakUnits!==null?breakUnits*p.unitPrice:null;
- const avgSales=rev/p.n;
- const marginSafety=avgSales>0&&breakSales!==null?1-breakSales/avgSales:null;
- const rows=[
+ const year1Sales=r.detail[1]?r.detail[1].rev:0;
+ const marginSafety=year1Sales>0&&breakSales!==null?1-breakSales/year1Sales:null;
+ const breakUtilization=breakUnits!==null&&p.capacity>0?breakUnits/p.capacity:null;
+ const rows=[ const rows=[
   ['Índice de rentabilidad',irIndex,irIndex===null?'No calculable':irIndex.toFixed(2),irIndex!==null&&irIndex>1,'Valor presente de los flujos positivos futuros respecto a la inversión inicial; debe ser > 1 para recuperar más valor presente que el desembolso inicial.'],
   ['Relación beneficio/costo financiera',bc,bc===null?'No calculable':bc.toFixed(2),bc!==null&&bc>1,'Beneficios financieros descontados (ingresos y recuperaciones) frente a costos financieros descontados (operación, intereses, impuestos e inversión); debe ser > 1.'],
   ['ROI',roi,pct(roi),roi!==null&&roi>0,'Retorno neto acumulado respecto a la inversión inicial.'],
@@ -275,9 +278,10 @@ function integralIndicators(p,m,r,van,tm,pb,pbd){
   ['EVA',eva,money(eva),eva>0,'Suma del valor económico agregado anual: NOPAT menos capital invertido promedio por WACC.'],
   ['Flujo de caja libre',fcf,money(fcf),fcf>0,'Flujo antes de financiación: operación después de impuestos, inversión, recuperación de capital de trabajo y valor de salvamento.'],
   ['Flujo de caja para accionista acumulado',fcfe,money(fcfe),fcfe>0,'Suma no descontada de los flujos netos del proyecto después de crédito y servicio de deuda; para valoración del accionista debe analizarse también su serie temporal.'],
-  ['Punto de equilibrio',breakUnits,breakUnits===null?'No calculable':num(breakUnits)+' unidades',breakUnits!==null&&breakUnits<=p.units,'Volumen estimado para cubrir los costos fijos considerados con el margen unitario informado.'],
-  ['Margen de seguridad',marginSafety,pct(marginSafety),marginSafety!==null&&marginSafety>0,'Caída porcentual de ventas promedio soportable antes de alcanzar el punto de equilibrio.']
- ];
+  ['Punto de equilibrio',breakUnits,breakUnits===null?'No calculable':num(breakUnits)+' unidades',breakUnits!==null&&breakUnits<=p.units,'Estimación del año 1: costos fijos operativos de caja (producción + ventas + administración, menos costo variable estimado) divididos por el margen unitario. No incluye intereses, depreciación ni impuestos.'],
+  ['Utilización al punto de equilibrio',breakUtilization,pct(breakUtilization),breakUtilization!==null&&breakUtilization<=1,'Proporción de la capacidad instalada que debe utilizarse para alcanzar el punto de equilibrio del año 1.'],
+  ['Margen de seguridad',marginSafety,pct(marginSafety),marginSafety!==null&&marginSafety>0,'Porcentaje de reducción de las ventas del año 1 soportable antes de alcanzar el punto de equilibrio.']
+ ]; ];
  const cards=rows.map(x=>'<div class="metric"><div class="label">'+x[0]+'</div><div class="value">'+x[2]+'</div><div class="'+(x[3]?'ok':'bad')+'">'+(x[3]?'Favorable':'Revisar')+'</div></div>').join('');
  const detail=rows.map(x=>'<tr><td><b>'+x[0]+'</b></td><td>'+x[2]+'</td><td>'+(x[3]?'Cumple':'No cumple / revisar')+'</td><td>'+x[4]+'</td></tr>').join('');
  const debtRows=debtBalance.map(x=>'<tr><td>'+x.t+'</td><td>'+money(x.opening)+'</td><td>'+money(x.principal)+'</td><td>'+money(x.interest)+'</td><td>'+money(x.ending)+'</td><td>'+money(x.cfads)+'</td><td>'+(x.dscr===null?'—':x.dscr.toFixed(2)+'x')+'</td><td>'+(x.ic===null?'—':x.ic.toFixed(2)+'x')+'</td></tr>').join('');
@@ -314,10 +318,16 @@ function mathProcedure(p,m,r,van,tm,pb,pbd){
  const eva=periods.reduce((s,x)=>s+x.nopat-(x.avgInvested*rate),0);
  const annualCfads=n>0?totalCfads/n:0,annuityFactor=p.finance>0?(1-Math.pow(1+p.finance,-n))/p.finance:n;
  const maxDebtCapacity=Math.max(0,annualCfads/1.3)*annuityFactor;
- const unitMargin=p.unitPrice-p.unitVarCost,fixed=m.prod.slice(1).reduce((s,x)=>s+x,0)+m.sales.slice(1).reduce((s,x)=>s+x,0)+m.admin.slice(1).reduce((s,x)=>s+x,0);
- const beUnits=unitMargin>0?fixed/unitMargin:null,beSales=beUnits!==null?beUnits*p.unitPrice:null,avgSales=r.detail.slice(1).reduce((s,x)=>s+x.rev,0)/n,safety=avgSales>0&&beSales!==null?1-beSales/avgSales:null;
- const f=(name,formula,sub,result,meaning)=>'<div class="formula"><b>'+name+'</b><br><br><b>Fórmula:</b> '+formula+'<br><b>Sustitución:</b> '+sub+'<br><b>Resultado:</b> '+result+'<br><b>Interpretación:</b> '+meaning+'</div>';
- let html='<h3>Procedimiento matemático desarrollado</h3><p>El procedimiento muestra fórmula, sustitución, resultado e interpretación. Los indicadores de deuda se calculan por período para identificar el año crítico.</p>';
+ const unitMargin=p.unitPrice-p.unitVarCost;
+ const year1OperatingCashCosts=(m.prod[1]||0)+(m.sales[1]||0)+(m.admin[1]||0);
+ const year1VariableCost=Math.max(0,(p.units||0)*(p.unitVarCost||0));
+ const fixed=Math.max(0,year1OperatingCashCosts-year1VariableCost);
+ const beUnits=unitMargin>0?fixed/unitMargin:null;
+ const beSales=beUnits!==null?beUnits*p.unitPrice:null;
+ const year1Sales=r.detail[1]?r.detail[1].rev:0;
+ const safety=year1Sales>0&&beSales!==null?1-beSales/year1Sales:null;
+ const beUtilization=beUnits!==null&&p.capacity>0?beUnits/p.capacity:null;
+ let html='<h3>Procedimiento matemático desarrollado</h3> let html='<h3>Procedimiento matemático desarrollado</h3><p>El procedimiento muestra fórmula, sustitución, resultado e interpretación. Los indicadores de deuda se calculan por período para identificar el año crítico.</p>';
  html+=f('1. VAN','VAN = Σ CFₜ/(1+r)ᵗ','r = '+pct(rate)+'; CF₀ = '+money(cf[0])+', flujos posteriores = '+cf.slice(1).map((x,i)=>'CF'+(i+1)+'='+money(x)).join('; '),money(van),van>0?'VAN positivo: creación de valor al WACC utilizado.':'VAN no positivo: no se recupera el costo de capital al WACC utilizado.');
  html+=f('2. TIR','Σ CFₜ/(1+TIR)ᵗ = 0','Newton-Raphson aplicado sobre el flujo; tasa final = '+pct(r.irr),pct(r.irr),r.irr>rate?'La TIR supera el WACC.':'La TIR no supera el WACC.');
  html+='<div class="formula"><b>3. Newton-Raphson</b><br><br><b>Fórmula:</b> rₙ₊₁ = rₙ − f(rₙ)/f′(rₙ)<br><b>Iteraciones:</b> '+r.its.length+'<br><div class="tablewrap"><table><thead><tr><th>i</th><th>rₙ</th><th>f(rₙ)</th><th>f′(rₙ)</th><th>rₙ₊₁</th><th>Error</th></tr></thead><tbody>'+r.its.map(x=>'<tr><td>'+x.i+'</td><td>'+pct(x.r)+'</td><td>'+num(x.f)+'</td><td>'+num(x.d)+'</td><td>'+pct(x.nr)+'</td><td>'+num(x.err)+'</td></tr>').join('')+'</tbody></table></div><b>Resultado:</b> '+pct(r.irr)+'.</div>';
@@ -331,8 +341,9 @@ function mathProcedure(p,m,r,van,tm,pb,pbd){
  html+=f('11. Cobertura de intereses mínima','Coberturaₜ = EBITDAₜ / interesesₜ','Mínimo entre períodos con intereses',minIc===null?'No hay intereses':minIc.toFixed(2)+'x',minIc===null||minIc>=2?'El período crítico mantiene una cobertura de al menos 2x.':'El período crítico presenta cobertura inferior a 2x.');
  html+=f('12. EVA','EVAₜ = NOPATₜ − (capital invertido promedioₜ × WACC)','Suma de EVA anual; WACC = '+pct(rate),money(eva),eva>0?'Creación de valor económica acumulada positiva.':'No se observa creación de valor económica acumulada positiva.');
  html+=f('13. Capacidad máxima de endeudamiento','Deuda máxima ≈ (CFADS promedio / DSCR objetivo) × factor de anualidad','CFADS promedio = '+money(annualCfads)+'; DSCR objetivo = 1,30x; tasa financiación = '+pct(p.finance),money(maxDebtCapacity),'Estimación orientativa; debe contrastarse con las condiciones reales del crédito.');
- html+=f('14. Punto de equilibrio','Q* = Costos fijos / (Precio − Costo variable unitario)','Costos fijos considerados = '+money(fixed)+'; precio = '+money(p.unitPrice)+'; costo variable unitario = '+money(p.unitVarCost),beUnits===null?'No calculable':num(beUnits)+' unidades',beUnits!==null?'El volumen debe superar Q* para cubrir los costos fijos considerados.':'No existe margen unitario positivo.');
- html+=f('15. Margen de seguridad','MS = 1 − Ventas de equilibrio / Ventas promedio','Ventas equilibrio = '+money(beSales||0)+'; ventas promedio = '+money(avgSales),pct(safety),safety!==null&&safety>0?'Existe margen antes de alcanzar el punto de equilibrio.':'No existe margen positivo o no es calculable.');
+ html+=f('14. Punto de equilibrio','Q* = Costos fijos operativos de caja / (Precio − Costo variable unitario)','Costos fijos año 1 = '+money(fixed)+'; precio = '+money(p.unitPrice)+'; costo variable unitario = '+money(p.unitVarCost),beUnits===null?'No calculable':num(beUnits)+' unidades',beUnits!==null?'El volumen del año 1 debe superar Q* para cubrir los costos fijos operativos de caja considerados.':'No existe margen unitario positivo.');
+ html+=f('15. Utilización al punto de equilibrio','U* = Q* / Capacidad instalada','Q* = '+(beUnits===null?'No calculable':num(beUnits))+'; capacidad = '+num(p.capacity),pct(beUtilization),beUtilization!==null&&beUtilization<=1?'El punto de equilibrio es alcanzable dentro de la capacidad instalada.':'El punto de equilibrio no es alcanzable con la capacidad declarada o no puede calcularse.');
+ html+=f('16. Margen de seguridad','MS = 1 − Ventas de equilibrio / Ventas del año 1','Ventas equilibrio = '+money(beSales||0)+'; ventas año 1 = '+money(year1Sales),pct(safety),safety!==null&&safety>0?'Existe margen antes de alcanzar el punto de equilibrio.':'No existe margen positivo o no es calculable.');
  html+='<div class="formula"><b>15. Servicio de deuda por año</b><div class="tablewrap"><table><thead><tr><th>Año</th><th>Deuda inicial</th><th>Principal</th><th>Interés</th><th>Deuda final</th><th>CFADS</th><th>DSCR</th><th>Cobertura</th></tr></thead><tbody>'+periods.map(x=>'<tr><td>'+x.t+'</td><td>'+money(x.openingDebt)+'</td><td>'+money(x.principal)+'</td><td>'+money(x.interest)+'</td><td>'+money(x.endingDebt)+'</td><td>'+money(x.cfads)+'</td><td>'+(x.dscr===null?'—':x.dscr.toFixed(2)+'x')+'</td><td>'+(x.ic===null?'—':x.ic.toFixed(2)+'x')+'</td></tr>').join('')+'</tbody></table></div></div>';
  html+='<div class="interp"><b>Payback simple:</b> '+(Number.isFinite(pb)?pb.toFixed(2)+' años':'no se recupera')+' · <b>Payback descontado:</b> '+(Number.isFinite(pbd)?pbd.toFixed(2)+' años':'no se recupera dentro del horizonte')+'.</div>';
  return html;
@@ -340,10 +351,11 @@ function mathProcedure(p,m,r,van,tm,pb,pbd){
 function sectorAnalysis(p,m,r){
  const rev1=m.rev[1]||0, variableCost=p.units*p.unitVarCost, unitMargin=p.unitPrice-p.unitVarCost;
  const margin= p.unitPrice>0?unitMargin/p.unitPrice:0, util=p.capacity>0?p.units/p.capacity:0, revWorker=p.workers>0?rev1/p.workers:0, recurring=p.recurring;
- const fixedOp=(m.prod[1]+m.sales[1]+m.fin[1]+m.admin[1])-(variableCost);
- const breakUnits=unitMargin>0?Math.max(0,fixedOp/unitMargin):Infinity;
- const breakSales=Number.isFinite(breakUnits)?breakUnits*p.unitPrice:Infinity;
- const cards=[
+ const operatingCashCosts=(m.prod[1]||0)+(m.sales[1]||0)+(m.admin[1]||0);
+ const fixedOp=Math.max(0,operatingCashCosts-variableCost);
+ const breakUnits=unitMargin>0?fixedOp/unitMargin:null;
+ const breakSales=breakUnits!==null?breakUnits*p.unitPrice:null;
+ const cards=[ const cards=[
   ['Utilización de capacidad',pct(util),util<=1?'Mide el uso de la capacidad instalada. Un nivel bajo puede indicar capacidad ociosa; un nivel superior al 100% exige revisar la consistencia operativa.': 'La producción declarada supera la capacidad instalada y debe corregirse.'],
   ['Margen unitario',money(unitMargin),unitMargin>0?'Cada unidad genera margen positivo antes de costos fijos e impuestos.':'El costo variable unitario supera el precio: la operación destruye margen por unidad.'],
   ['Margen de contribución',pct(margin),margin>0?'Existe contribución positiva para absorber costos fijos y financiar el retorno de la inversión.':'El margen es nulo o negativo; la estructura de precios/costos debe revisarse.'],

@@ -97,7 +97,7 @@ button,input,select{font:inherit}.hidden{display:none!important}.screen{min-heig
  <section id="m4" class="module">
   <h2>4. Ejecutar evaluación financiera</h2>
   <p>Presione el botón para recalcular el proyecto con los datos registrados. El resultado aparecerá dentro de este módulo.</p>
-  <div class="actions"><button id="run" class="btn primary">Ejecutar simulación</button><button id="reset" class="btn secondary">Restablecer</button><button id="report" class="btn secondary">Generar informe</button></div>
+  <div class="actions"><button id="run" class="btn primary">Ejecutar simulación</button><button id="reset" class="btn secondary">Restablecer</button><button id="report" class="btn secondary" type="button" onclick="generarInforme()">Generar informe</button></div>
   <div id="status" class="statusbox">La simulación aún no se ha ejecutado.</div>
   <div id="results"></div>
  </section>
@@ -522,6 +522,7 @@ function report(p,m,r,van,tm,viable){
  '<div class="sector-section"><h3>7. Dictamen de viabilidad</h3><div class="sector-conclusion"><b>'+decision+'</b><br><br>'+ (viable?'El proyecto presenta creación de valor bajo el WACC y una rentabilidad relativa favorable.':'Los resultados actuales no permiten recomendar la inversión sin ajustes o validación adicional.')+'<br><br><b>Recomendaciones:</b><ul>'+recommendations.map(x=>'<li>'+x+'.</li>').join('')+'</ul></div></div>'+
  '<div class="sector-section"><h3>8. Trazabilidad de la decisión</h3><p>Supuestos del proyecto → flujo de caja → VAN/TIR/TIRM → indicadores integrales → análisis sectorial → contexto macroeconómico → escenarios y sensibilidad → dictamen. La decisión debe revisarse si cambian los supuestos críticos.</p></div>';
 }
+function generarInforme(){try{runSimulation();activate('m9');document.getElementById('reportBox').scrollIntoView({behavior:'smooth',block:'start'});}catch(e){document.getElementById('reportBox').innerHTML='<div class="notice"><b>No fue posible generar el informe.</b> '+esc(e.message||e)+'</div>';}}
 function openSimulator(){document.getElementById('welcome').classList.add('hidden');document.getElementById('app').classList.remove('hidden');document.getElementById('app').scrollIntoView({behavior:'smooth',block:'start'});}
 function activate(id){document.querySelectorAll('.module').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('.module-btn').forEach(x=>x.classList.toggle('active',x.dataset.module===id));document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'})}
 document.querySelectorAll('.module-btn').forEach(b=>b.addEventListener('click',()=>activate(b.dataset.module)));
@@ -529,7 +530,7 @@ document.querySelectorAll('.module-btn').forEach(b=>b.addEventListener('click',(
 $('years').addEventListener('change',buildTable);$('sector').addEventListener('change',populateCiiu);populateCiiu();
 $('run').addEventListener('click',runSimulation);
 $('reset').addEventListener('click',()=>location.reload());
-$('report').addEventListener('click',()=>{activate('m9');if(!$('status').textContent.includes('correctamente'))runSimulation();});
+
 buildTable();
 </script>
 </body></html>

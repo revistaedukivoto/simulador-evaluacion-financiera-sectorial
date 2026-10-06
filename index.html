@@ -459,7 +459,7 @@ function scenarios(p,m){
   ['Costos de producción',x=>{const mm=JSON.parse(JSON.stringify(m));for(let t=1;t<=p.n;t++)mm.prod[t]*=x;return npv(p.wacc,calc(p,mm).cf)}],
   ['Costos de ventas',x=>{const mm=JSON.parse(JSON.stringify(m));for(let t=1;t<=p.n;t++)mm.sales[t]*=x;return npv(p.wacc,calc(p,mm).cf)}],
   ['Costos administrativos',x=>{const mm=JSON.parse(JSON.stringify(m));for(let t=1;t<=p.n;t++)mm.admin[t]*=x;return npv(p.wacc,calc(p,mm).cf)}],
-  ['WACC',x=>npv(x,m.cf)]
+  ['WACC',x=>npv(x,calc(p,m).cf)]
  ];
  const sens=[];
  for(const [name,fn] of vars){

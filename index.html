@@ -16,9 +16,9 @@ button,input,select{font:inherit}.hidden{display:none!important}.screen{min-heig
 .module{background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px;display:none}.module.active{display:block}.module h2{margin:0 0 14px}.module h3{margin:20px 0 8px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.field{display:flex;flex-direction:column;gap:5px}.field label{font-size:12px;color:var(--muted);font-weight:600}.field input,.field select{padding:9px;border:1px solid #cbd7d7;border-radius:7px}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.btn{border:0;border-radius:8px;padding:10px 15px;cursor:pointer;font-weight:700}.primary{background:var(--green);color:#fff}.secondary{background:#eaf0f0;color:var(--ink)}.danger{background:#fceaea;color:#9b2226}
 .notice{background:#edf8f4;border-left:4px solid var(--green);padding:12px;margin:12px 0;line-height:1.5}.muted{color:var(--muted);font-size:13px}.module-list{margin:0;padding-left:20px;line-height:1.8}.module-list li{margin-bottom:4px}
 .tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}th:first-child,td:first-child{text-align:left}th{background:#f1f5f5}.matrix input{width:115px;padding:6px;text-align:right;border:1px solid #ccd8d8;border-radius:5px}
-.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.metric{border:1px solid var(--line);border-radius:9px;padding:12px}.metric .label{font-size:11px;color:var(--muted)}.metric .value{font-size:21px;font-weight:700;margin:6px 0}.ok{color:#087443}.bad{color:#b42318}.warn{color:#a16207}.interp{background:#f7f9f9;border-left:4px solid var(--green);padding:12px;line-height:1.5;margin-top:10px}.formula{background:#f5f7f7;padding:12px;border-radius:7px;font-family:Georgia,serif;line-height:1.7;overflow:auto}.module-note{font-size:12px;color:var(--muted);margin-top:12px}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.metric{border:1px solid var(--line);border-radius:9px;padding:12px}.metric .label{font-size:11px;color:var(--muted)}.metric .value{font-size:21px;font-weight:700;margin:6px 0}.ok{color:#087443}.bad{color:#b42318}.warn{color:#a16207}.interp{background:#f7f9f9;border-left:4px solid var(--green);padding:12px;line-height:1.5;margin-top:10px}.formula{background:#f5f7f7;padding:12px;border-radius:7px;font-family:Georgia,serif;line-height:1.7;overflow:auto}.sector-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}.sector-card{border:1px solid var(--line);border-radius:10px;padding:14px;background:#fff}.sector-card h4{margin:0 0 7px;color:var(--green2)}.sector-card .big{font-size:20px;font-weight:700;margin:4px 0 7px}.sector-card p{margin:0;color:#4d5d63;font-size:13px;line-height:1.45}.sector-section{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}.bar{height:10px;background:#e8eeee;border-radius:99px;overflow:hidden;margin:7px 0}.bar i{display:block;height:100%;background:var(--green);border-radius:99px}.sector-table td:last-child{white-space:normal;text-align:left}.sector-conclusion{background:#f7f9f9;border-left:4px solid var(--green);padding:14px;line-height:1.55;margin-top:14px}.module-note{font-size:12px;color:var(--muted);margin-top:12px}
 #status{font-weight:700;margin-top:10px}.statusbox{padding:10px;border-radius:7px;background:#f4f7f7}
-@media(max-width:900px){.layout{display:block}.menu{position:static;display:grid;grid-template-columns:repeat(2,1fr);margin-bottom:16px}.module{margin-bottom:16px}.grid,.metrics{grid-template-columns:repeat(2,1fr)}}@media(max-width:600px){.menu,.grid,.metrics{grid-template-columns:1fr}.welcome-card{padding:25px}.topbar{padding:8px 12px}}
+@media(max-width:900px){.layout{display:block}.menu{position:static;display:grid;grid-template-columns:repeat(2,1fr);margin-bottom:16px}.module{margin-bottom:16px}.grid,.metrics,.sector-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:600px){.menu,.grid,.metrics{grid-template-columns:1fr}.welcome-card{padding:25px}.topbar{padding:8px 12px}}
 </style>
 </head>
 <body>
@@ -109,26 +109,28 @@ button,input,select{font:inherit}.hidden{display:none!important}.screen{min-heig
  </section>
 
  <section id="m6" class="module">
-  <h2>6. Evaluación sectorial</h2>
-  <p>La selección sectorial orienta la interpretación. Las variables cuantitativas se mantienen separadas de los indicadores financieros centrales.</p>
-  <div id="sectorInfo" class="notice">Seleccione sector en Datos generales.</div>
+  <h2>6. Evaluación sectorial integral</h2>
+  <p>Este módulo no se limita a identificar el sector. Traduce las variables operativas del proyecto en indicadores sectoriales, contrasta su comportamiento con la lógica económica de la actividad y explica cómo cada resultado puede afectar la viabilidad financiera.</p>
+  <div id="sectorInfo" class="notice">Ejecute la evaluación para construir el diagnóstico sectorial.</div>
+  <div id="sectorAnalysis"></div>
  </section>
 
  <section id="m7" class="module">
-  <h2>7. Contexto macroeconómico</h2>
-  <div class="notice"><b>Referencia DANE:</b> el contexto observado debe diferenciarse de los supuestos utilizados en el proyecto.</div>
+  <h2>7. Contexto macroeconómico y análisis de impacto</h2>
+  <div class="notice"><b>Principio de trazabilidad:</b> el contexto macroeconómico observado debe separarse del supuesto adoptado por el proyecto. El simulador debe explicar la cadena <b>indicador macroeconómico → supuesto → ingresos/costos → flujo de caja → indicadores → viabilidad</b>.</div>
   <div class="grid">
    <div class="field"><label>Crecimiento de referencia (%)</label><input id="macroGrowth" type="number" step=".1" value="3.5"></div>
    <div class="field"><label>IPC de referencia (%)</label><input id="ipc" type="number" step=".1" value="6.24"></div>
    <div class="field"><label>IPP / presión de costos (%)</label><input id="ipp" type="number" step=".1" value="-0.33"></div>
    <div class="field"><label>Ajuste de demanda (%)</label><input id="macroDemand" type="number" step=".1" value="0"></div>
   </div>
-  <p class="muted">Estos campos son supuestos editables y no sustituyen una consulta sectorial específica.</p>
+  <div id="macroAnalysis"></div>
+  <p class="muted">Los valores son editables. La interpretación se construye sobre los datos introducidos y debe contrastarse con series sectoriales específicas antes de una decisión de inversión.</p>
  </section>
 
  <section id="m8" class="module">
   <h2>8. Escenarios y sensibilidad</h2>
-  <p>Los escenarios se generan a partir del flujo base. Se presentan únicamente cuando la evaluación ha sido ejecutada.</p>
+  <p>Esta capa no se limita a mostrar tres VAN. Recalcula el proyecto bajo escenarios alternativos y mide qué variables producen los mayores cambios en el valor del proyecto.</p>
   <div id="scenarioBox"></div>
  </section>
 
@@ -168,7 +170,7 @@ function calc(p,m){
  const cf=Array(p.n+1).fill(0),detail=[];
  for(let t=0;t<=p.n;t++){
   if(t===0){cf[0]=-p.initialInvestment+m.credit[0];detail.push({t:0,rev:0,op:0,da:0,ebit:0,tax:0,net:0,capex:p.initialInvestment,cf:cf[0]});continue}
-  const rev=m.rev[t],op=m.prod[t]+m.sales[t]+m.fin[t]+m.admin[t],da=m.depTech[t]+m.depVeh[t]+m.depOffice[t]+m.depFurniture[t]+m.depComp[t],ebit=rev-op-da,ebt=ebit-m.amort[t],tx=Math.max(0,ebt*p.tax),net=ebt-tx,capex=m.invTech[t]+m.invVeh[t]+m.invOffice[t]+m.invFurniture[t]+m.invComp[t]+m.invIntang[t]+m.invReal[t]+m.wcInv[t],recovery=m.wcRec[t]+m.salvage[t];
+  const rev=m.rev[t],op=m.prod[t]+m.sales[t]+m.admin[t],interest=m.fin[t],da=m.depTech[t]+m.depVeh[t]+m.depOffice[t]+m.depFurniture[t]+m.depComp[t],ebit=rev-op-da,ebt=ebit-interest-m.amort[t],tx=Math.max(0,ebt*p.tax),net=ebt-tx,capex=m.invTech[t]+m.invVeh[t]+m.invOffice[t]+m.invFurniture[t]+m.invComp[t]+m.invIntang[t]+m.invReal[t]+m.wcInv[t],recovery=m.wcRec[t]+m.salvage[t];
   cf[t]=net+da+m.amort[t]-capex+recovery+m.credit[t]-m.debtAmort[t];detail.push({t,rev,op,da,ebit,tax:tx,net,capex,cf:cf[t]});
  }return{cf,detail};
 }
@@ -177,22 +179,333 @@ function irrNewton(cf,guess=.1){let r=guess,its=[];for(let i=0;i<200;i++){const 
 function irrBisection(cf){let lo=-.9999,hi=10,flo=npv(lo,cf),fhi=npv(hi,cf);if(flo*fhi>0)return null;for(let i=0;i<300;i++){const mid=(lo+hi)/2,f=npv(mid,cf);if(Math.abs(f)<1e-8)return mid;if(flo*f<=0){hi=mid;fhi=f}else{lo=mid;flo=f}}return(lo+hi)/2}
 function mirr(cf,fin,rein){const n=cf.length-1;if(n<=0)return null;const pvNeg=cf.reduce((s,x,t)=>s+(x<0?x/Math.pow(1+fin,t):0),0),fvPos=cf.reduce((s,x,t)=>s+(x>0?x*Math.pow(1+rein,n-t):0),0);return pvNeg<0&&fvPos>=0?Math.pow(fvPos/-pvNeg,1/n)-1:null}
 function payback(cf,rate){let cum=cf[0];for(let t=1;t<cf.length;t++){const f=cf[t]/Math.pow(1+rate,t);if(cum+f>=0)return t-1+(-cum)/f;cum+=f}return Infinity}
+function benefitCost(p,m,r){const rate=p.wacc;let pvBenefits=0,pvCosts=0;for(let t=1;t<=p.n;t++){const d=r.detail[t],benefit=(d.rev||0)+(m.wcRec[t]||0)+(m.salvage[t]||0),cost=(d.op||0)+(m.fin[t]||0)+(d.tax||0)+(d.capex||0);pvBenefits+=benefit/Math.pow(1+rate,t);pvCosts+=cost/Math.pow(1+rate,t)}return {pvBenefits,pvCosts,ratio:pvCosts>0?pvBenefits/pvCosts:null}}
+function profitabilityIndex(p,r){const pvFuturePositive=r.cf.slice(1).reduce((s,x,i)=>s+(x>0?x/Math.pow(1+p.wacc,i+1):0),0);return p.initialInvestment>0?pvFuturePositive/p.initialInvestment:null}
 function runSimulation(){
  try{
   const p=inputs(),m=matrix();if(p.n<1||p.n>10)throw new Error('El horizonte debe estar entre 1 y 10 años.');
   const r=calc(p,m),ir=irrNewton(r.cf),br=irrBisection(r.cf);r.irr=ir.converged?ir.r:br;r.its=ir.its;
+  const signChanges=r.cf.slice(1).reduce((n,x,i,a)=>{const prev=i===0?r.cf[0]:a[i-1];return n+((prev<0&&x>0)||(prev>0&&x<0)?1:0)},0);
+  r.multipleIRRWarning=signChanges>1?'El flujo presenta múltiples cambios de signo; puede existir más de una TIR. La TIR mostrada debe contrastarse con VAN y escenarios.':null;
   const van=npv(p.wacc,r.cf),tm=mirr(r.cf,p.finance,p.reinvest),pb=payback(r.cf,0),pbd=payback(r.cf,p.wacc);
   const viable=van>0&&Number.isFinite(r.irr)&&r.irr>p.wacc;
   $('status').innerHTML='<b class="'+(viable?'ok':'warn')+'">Evaluación ejecutada correctamente.</b> Inversión inicial: '+money(p.initialInvestment);
-  $('results').innerHTML='<h3>Indicadores principales</h3><div class="metrics">'+metric('VAN',money(van),van>0)+' '+metric('TIR',pct(r.irr),r.irr>p.wacc)+' '+metric('TIRM',pct(tm),tm!==null&&tm>p.wacc)+' '+metric('Payback',Number.isFinite(pb)?pb.toFixed(2)+' años':'No recupera',Number.isFinite(pb))+'</div><div class="interp"><b>Conclusión:</b> '+(viable?'Los indicadores centrales respaldan la generación de valor bajo los supuestos actuales.':'Los resultados requieren ajustes o validación adicional antes de considerar el proyecto financieramente aceptable.')+'</div><h3>Flujo neto</h3><div class="tablewrap"><table><thead><tr><th>Año</th><th>Flujo</th></tr></thead><tbody>'+r.detail.map(x=>'<tr><td>'+x.t+'</td><td>'+money(x.cf)+'</td></tr>').join('')+'</tbody></table></div>';
-  $('iterations').innerHTML='<div class="tablewrap"><table><thead><tr><th>Iteración</th><th>Tasa</th><th>f(r)</th><th>f′(r)</th><th>Nueva tasa</th><th>Error</th></tr></thead><tbody>'+r.its.map(x=>'<tr><td>'+x.i+'</td><td>'+pct(x.r)+'</td><td>'+num(x.f)+'</td><td>'+num(x.d)+'</td><td>'+pct(x.nr)+'</td><td>'+num(x.err)+'</td></tr>').join('')+'</tbody></table><p class="muted">TIR final: '+pct(r.irr)+' · Payback descontado: '+(Number.isFinite(pbd)?pbd.toFixed(2)+' años':'No recupera dentro del horizonte')+'</p></div>';
-  $('sectorInfo').innerHTML=sectorText(p);$('scenarioBox').innerHTML=scenarios(p,m);$('reportBox').innerHTML=report(p,m,r,van,tm,viable);
+  $('results').innerHTML='<h3>Indicadores principales</h3><div class="metrics">'+metric('VAN',money(van),van>0)+' '+metric('TIR',pct(r.irr),r.irr>p.wacc)+' '+metric('TIRM',pct(tm),tm!==null&&tm>p.wacc)+' '+metric('Payback',Number.isFinite(pb)?pb.toFixed(2)+' años':'No recupera',Number.isFinite(pb))+'</div><div class="interp"><b>Conclusión:</b> '+(viable?'Los indicadores centrales respaldan la generación de valor bajo los supuestos actuales.':'Los resultados requieren ajustes o validación adicional antes de considerar el proyecto financieramente aceptable.')+(r.multipleIRRWarning?'<br><span class="warn"><b>Advertencia TIR:</b> '+esc(r.multipleIRRWarning)+'</span>':'')+'</div>'+integralIndicators(p,m,r,van,tm,pb,pbd)+'<h3>Flujo neto</h3><div class="tablewrap"><table><thead><tr><th>Año</th><th>Flujo</th></tr></thead><tbody>'+r.detail.map(x=>'<tr><td>'+x.t+'</td><td>'+money(x.cf)+'</td></tr>').join('')+'</tbody></table></div>';
+  $('iterations').innerHTML=mathProcedure(p,m,r,van,tm,pb,pbd);
+  $('sectorInfo').innerHTML=sectorText(p);$('sectorAnalysis').innerHTML=sectorAnalysis(p,m,r);$('macroAnalysis').innerHTML=macroAnalysis(p,m,r,van);$('scenarioBox').innerHTML=scenarios(p,m);$('reportBox').innerHTML=report(p,m,r,van,tm,viable);
  }catch(e){$('status').innerHTML='<span class="bad"><b>Error:</b> '+esc(e.message)+'</span>'}
 }
-function metric(label,value,good){return '<div class="metric"><div class="label">'+label+'</div><div class="value">'+value+'</div><div class="'+(good?'ok':'bad')+'">'+(good?'Favorable':'Revisar')+'</div></div>'}
-function sectorText(p){const map={primaria:'productividad, rendimiento por unidad, precios de productos e insumos y capital de trabajo.',industrial:'capacidad instalada, costos unitarios, margen de contribución y productividad.',construccion:'avance físico, costos directos, cronograma, capital de trabajo y riesgo de ejecución.',comercio:'margen comercial, rotación de inventarios, ventas y capital de trabajo.',servicios:'ingreso por trabajador, utilización de capacidad, costos laborales, margen y recurrencia.',tecnologia:'ingreso recurrente, inversión tecnológica, productividad y escalabilidad.'};return '<b>Sector seleccionado:</b> '+esc(p.sector)+'. La lectura sectorial prioriza '+map[p.sector]+' CIIU informado: '+esc(p.ciiu||'No especificado')+'.'}
-function scenarios(p,m){const vals=[['Pesimista',.85],['Base',1],['Optimista',1.15]];return '<div class="tablewrap"><table><thead><tr><th>Escenario</th><th>VAN</th></tr></thead><tbody>'+vals.map(s=>{const mm=JSON.parse(JSON.stringify(m));for(let t=1;t<=p.n;t++){mm.rev[t]*=s[1];mm.prod[t]*=2-s[1];mm.sales[t]*=2-s[1]}const v=npv(p.wacc,calc(p,mm).cf);return '<tr><td>'+s[0]+'</td><td>'+money(v)+'</td></tr>'}).join('')+'</tbody></table></div>'}
-function report(p,m,r,van,tm,viable){return '<h3>Ficha técnica</h3><p><b>Proyecto:</b> '+esc(p.project)+'<br><b>Inversión inicial:</b> '+money(p.initialInvestment)+'<br><b>Horizonte:</b> '+p.n+' años<br><b>WACC:</b> '+pct(p.wacc)+'<br><b>Sector:</b> '+esc(p.sector)+'</p><div class="interp"><b>Conclusión:</b> '+(viable?'El proyecto es financieramente viable bajo los supuestos actuales.':'El proyecto requiere ajustes o validación adicional.')+' <b>Recomendación:</b> revisar variables críticas de ingresos, costos, financiación y demanda.</div>'}
+function integralIndicators(p,m,r,van,tm,pb,pbd){
+ const disc=p.wacc;
+ const bcData=benefitCost(p,m,r),bc=bcData.ratio;
+ const irIndex=profitabilityIndex(p,r);
+ const totalNet=r.cf.reduce((s,x)=>s+x,0);
+ const roi=p.initialInvestment>0?totalNet/p.initialInvestment:null;
+ const debtBalance=[],periods=[];
+ let openingDebt=0,assetBase=p.initialInvestment;
+ let equityOpening=p.initialInvestment;
+ for(let t=1;t<=p.n;t++){
+  const credit=m.credit[t]||0,principal=m.debtAmort[t]||0,interest=m.fin[t]||0;
+  openingDebt+=credit;
+  const endingDebt=Math.max(0,openingDebt-principal);
+  const da=r.detail[t].da||0,amort=m.amort[t]||0;
+  const ebit=r.detail[t].ebit||0,tax=r.detail[t].tax||0;
+  const capex=r.detail[t].capex||0,wcRecovery=m.wcRec[t]||0,salvage=m.salvage[t]||0;
+  const cfads=ebit-tax+da+amort-capex+wcRecovery;
+  const fcf=cfads+salvage;
+  const service=interest+principal;
+  const dscr=service>0?cfads/service:null;
+  const ebitda=ebit+da;
+  const ic=interest>0?ebitda/interest:null;
+  const investedEnd=Math.max(0,assetBase+capex-da-amort);
+  const avgInvested=(assetBase+investedEnd)/2;
+  const equityEnd=Math.max(0,investedEnd-endingDebt);
+  const avgEquity=(equityOpening+equityEnd)/2;
+  const nopat=ebit-Math.max(0,ebit*p.tax);
+  const eva=nopat-(avgInvested*disc);
+  debtBalance.push({t,opening:openingDebt,principal,interest,ending:endingDebt,cfads,service,dscr,ic,ebitda,nopat,invested:avgInvested,equity:avgEquity,eva,fcf});
+  openingDebt=endingDebt;assetBase=investedEnd;equityOpening=equityEnd;
+ }
+ const debt=debtBalance.length?debtBalance[debtBalance.length-1].ending:0;
+ const totalInterest=debtBalance.reduce((s,x)=>s+x.interest,0);
+ const totalService=debtBalance.reduce((s,x)=>s+x.service,0);
+ const totalCfads=debtBalance.reduce((s,x)=>s+x.cfads,0);
+ const ebitda=debtBalance.reduce((s,x)=>s+x.ebitda,0);
+ const netIncome=r.detail.slice(1).reduce((s,x)=>s+x.net,0);
+ const avgInvested=debtBalance.length?debtBalance.reduce((s,x)=>s+x.invested,0)/debtBalance.length:p.initialInvestment;
+ const avgEquity=debtBalance.length?debtBalance.reduce((s,x)=>s+x.equity,0)/debtBalance.length:Math.max(0,p.initialInvestment-debt);
+ const roa=avgInvested>0?netIncome/(avgInvested*p.n):null;
+ const roe=avgEquity>0?netIncome/(avgEquity*p.n):null;
+ const dscrMin=debtBalance.filter(x=>x.dscr!==null).length?Math.min(...debtBalance.filter(x=>x.dscr!==null).map(x=>x.dscr)):null;
+ const dscrAvg=totalService>0?totalCfads/totalService:null;
+ const icMin=debtBalance.filter(x=>x.ic!==null).length?Math.min(...debtBalance.filter(x=>x.ic!==null).map(x=>x.ic)):null;
+ const debtEquity=avgEquity>0?debt/avgEquity:null;
+ const debtEbitda=ebitda>0?debt/ebitda:null;
+ const leverage=avgEquity>0?(debt+avgEquity)/avgEquity:null;
+ const serviceFlow=totalCfads>0?totalService/totalCfads:null;
+ const annualCfads=p.n>0?totalCfads/p.n:0;
+ const annualDebtCapacity=Math.max(0,annualCfads/1.3);
+ const annuityFactor=p.finance>0?(1-Math.pow(1+p.finance,-p.n))/p.finance:p.n;
+ const maxDebtCapacity=annualDebtCapacity*annuityFactor;
+ const eva=debtBalance.reduce((s,x)=>s+x.eva,0);
+ const fcf=debtBalance.reduce((s,x)=>s+x.fcf,0);
+ const fcfe=r.cf.slice(1).reduce((s,x)=>s+x,0);
+ const rev=r.detail.slice(1).reduce((s,x)=>s+x.rev,0);
+ const year1OperatingCashCosts=(m.prod[1]||0)+(m.sales[1]||0)+(m.admin[1]||0);
+ const year1VariableCost=Math.max(0,(p.units||0)*(p.unitVarCost||0));
+ const fixed=Math.max(0,year1OperatingCashCosts-year1VariableCost);
+ const unitMargin=p.unitPrice-p.unitVarCost;
+ const breakUnits=unitMargin>0?fixed/unitMargin:null;
+ const breakSales=breakUnits!==null?breakUnits*p.unitPrice:null;
+ const year1Sales=r.detail[1]?r.detail[1].rev:0;
+ const marginSafety=year1Sales>0&&breakSales!==null?1-breakSales/year1Sales:null;
+ const breakUtilization=breakUnits!==null&&p.capacity>0?breakUnits/p.capacity:null;
+ const rows=[
+  ['Índice de rentabilidad',irIndex,irIndex===null?'No calculable':irIndex.toFixed(2),irIndex!==null&&irIndex>1,'Valor presente de los flujos positivos futuros respecto a la inversión inicial; debe ser > 1 para recuperar más valor presente que el desembolso inicial.'],
+  ['Relación beneficio/costo financiera',bc,bc===null?'No calculable':bc.toFixed(2),bc!==null&&bc>1,'Beneficios financieros descontados (ingresos y recuperaciones) frente a costos financieros descontados (operación, intereses, impuestos e inversión); debe ser > 1.'],
+  ['ROI',roi,pct(roi),roi!==null&&roi>0,'Retorno neto acumulado respecto a la inversión inicial.'],
+  ['ROA',roa,pct(roa),roa!==null&&roa>0,'Rentabilidad anualizada aproximada sobre el capital invertido promedio del proyecto.'],
+  ['ROE',roe,pct(roe),roe!==null&&roe>0,'Rentabilidad anualizada aproximada sobre el patrimonio promedio estimado.'],
+  ['DSCR mínimo',dscrMin,dscrMin===null?'No hay deuda':dscrMin.toFixed(2)+'x',dscrMin===null||dscrMin>=1.3,'Se evalúa por período; el mínimo es el indicador prudencial para detectar el año crítico.'],
+  ['DSCR promedio',dscrAvg,dscrAvg===null?'No hay deuda':dscrAvg.toFixed(2)+'x',dscrAvg===null||dscrAvg>=1.3,'Cobertura agregada de CFADS sobre servicio total de deuda; CFADS excluye valor de salvamento extraordinario.'],
+  ['Cobertura de intereses mínima',icMin,icMin===null?'No hay intereses':icMin.toFixed(2)+'x',icMin===null||icMin>=2,'Se toma el período con menor cobertura; ≥2x es una referencia orientativa.'],
+  ['Endeudamiento',p.initialInvestment>0?debt/p.initialInvestment:null,pct(p.initialInvestment>0?debt/p.initialInvestment:null),p.initialInvestment<=0||debt/p.initialInvestment<=.6,'Deuda final respecto a la inversión inicial; umbral orientativo.'],
+  ['Deuda / Patrimonio',debtEquity,debtEquity===null?'No calculable':debtEquity.toFixed(2)+'x',debtEquity===null||debtEquity<=1,'Compara deuda final con patrimonio promedio estimado.'],
+  ['Deuda / EBITDA',debtEbitda,debtEbitda===null?'No calculable':debtEbitda.toFixed(2)+'x',debtEbitda===null||debtEbitda<=3,'Referencia orientativa de presión de endeudamiento operativo.'],
+  ['Apalancamiento',leverage,leverage===null?'No calculable':leverage.toFixed(2)+'x',leverage===null||leverage<=2.5,'Relación entre capital financiado y patrimonio promedio estimado.'],
+  ['Servicio de deuda / CFADS',serviceFlow,pct(serviceFlow),serviceFlow===null||serviceFlow<=.8,'Una proporción menor indica mayor holgura del flujo para atender deuda.'],
+  ['Capacidad máxima de endeudamiento',maxDebtCapacity,money(maxDebtCapacity),maxDebtCapacity>=debt,'Estimación orientativa basada en CFADS promedio, DSCR objetivo de 1,30x y anualidad a la tasa de financiación.'],
+  ['EVA',eva,money(eva),eva>0,'Suma del valor económico agregado anual: NOPAT menos capital invertido promedio por WACC.'],
+  ['Flujo de caja libre',fcf,money(fcf),fcf>0,'Flujo antes de financiación: operación después de impuestos, inversión, recuperación de capital de trabajo y valor de salvamento.'],
+  ['Flujo de caja para accionista acumulado',fcfe,money(fcfe),fcfe>0,'Suma no descontada de los flujos netos del proyecto después de crédito y servicio de deuda; para valoración del accionista debe analizarse también su serie temporal.'],
+  ['Punto de equilibrio',breakUnits,breakUnits===null?'No calculable':num(breakUnits)+' unidades',breakUnits!==null&&breakUnits<=p.units,'Estimación del año 1: costos fijos operativos de caja (producción + ventas + administración, menos costo variable estimado) divididos por el margen unitario. No incluye intereses, depreciación ni impuestos.'],
+  ['Utilización al punto de equilibrio',breakUtilization,pct(breakUtilization),breakUtilization!==null&&breakUtilization<=1,'Proporción de la capacidad instalada que debe utilizarse para alcanzar el punto de equilibrio del año 1.'],
+  ['Margen de seguridad',marginSafety,pct(marginSafety),marginSafety!==null&&marginSafety>0,'Porcentaje de reducción de las ventas del año 1 soportable antes de alcanzar el punto de equilibrio.']
+ ];
+ const cards=rows.map(x=>'<div class="metric"><div class="label">'+x[0]+'</div><div class="value">'+x[2]+'</div><div class="'+(x[3]?'ok':'bad')+'">'+(x[3]?'Favorable':'Revisar')+'</div></div>').join('');
+ const detail=rows.map(x=>'<tr><td><b>'+x[0]+'</b></td><td>'+x[2]+'</td><td>'+(x[3]?'Cumple':'No cumple / revisar')+'</td><td>'+x[4]+'</td></tr>').join('');
+ const debtRows=debtBalance.map(x=>'<tr><td>'+x.t+'</td><td>'+money(x.opening)+'</td><td>'+money(x.principal)+'</td><td>'+money(x.interest)+'</td><td>'+money(x.ending)+'</td><td>'+money(x.cfads)+'</td><td>'+(x.dscr===null?'—':x.dscr.toFixed(2)+'x')+'</td><td>'+(x.ic===null?'—':x.ic.toFixed(2)+'x')+'</td></tr>').join('');
+ return '<div class="sector-section"><h3>Indicadores financieros integrales</h3><div class="metrics">'+cards+'</div><div class="tablewrap" style="margin-top:14px"><table class="sector-table"><thead><tr><th>Indicador</th><th>Resultado</th><th>Estado</th><th>Criterio e interpretación</th></tr></thead><tbody>'+detail+'</tbody></table></div><div class="sector-section"><h3>Servicio de deuda y cobertura por período</h3><div class="tablewrap"><table class="sector-table"><thead><tr><th>Año</th><th>Deuda inicial</th><th>Amortización</th><th>Intereses</th><th>Deuda final</th><th>CFADS</th><th>DSCR</th><th>Cobertura intereses</th></tr></thead><tbody>'+debtRows+'</tbody></table></div><p class="module-note">El DSCR mínimo y la cobertura mínima identifican el año de mayor presión financiera. La capacidad máxima de endeudamiento es una estimación orientativa y no sustituye una estructura de crédito real.</p></div><div class="sector-conclusion"><b>Lectura financiera integral:</b> VAN/EVA evalúan creación de valor; TIR/TIRM rentabilidad; IR/ROI relación entre beneficios y recursos; DSCR y cobertura la capacidad de atender deuda; ROA/ROE el rendimiento aproximado del capital; y punto de equilibrio/margen de seguridad la resistencia operativa.</div></div>';
+}
+function mathProcedure(p,m,r,van,tm,pb,pbd){
+ const cf=r.cf,n=p.n,initial=p.initialInvestment,rate=p.wacc;
+ const bcData=benefitCost(p,m,r),bc=bcData.ratio,irIndex=profitabilityIndex(p,r);
+ const totalNet=cf.reduce((s,x)=>s+x,0);
+ const roi=initial>0?totalNet/initial:null;
+ const periods=[];let openingDebt=0,assetBase=initial,equityOpening=initial;
+ for(let t=1;t<=n;t++){
+  const credit=m.credit[t]||0,principal=m.debtAmort[t]||0,interest=m.fin[t]||0;
+  openingDebt+=credit;const endingDebt=Math.max(0,openingDebt-principal);
+  const d=r.detail[t],da=d.da||0,amort=m.amort[t]||0,ebit=d.ebit||0,tax=d.tax||0,capex=d.capex||0;
+  const recovery=(m.wcRec[t]||0)+(m.salvage[t]||0),cfads=ebit-tax+da+amort-capex+recovery;
+  const service=interest+principal,dscr=service>0?cfads/service:null,ebitda=ebit+da,ic=interest>0?ebitda/interest:null;
+  const investedEnd=Math.max(0,assetBase+capex-da-amort),avgInvested=(assetBase+investedEnd)/2;
+  const equityEnd=Math.max(0,investedEnd-endingDebt),avgEquity=(equityOpening+equityEnd)/2;
+  periods.push({t,openingDebt,principal,interest,endingDebt,cfads,service,dscr,ic,ebitda,nopat:ebit-Math.max(0,ebit*p.tax),avgInvested,avgEquity});
+  openingDebt=endingDebt;assetBase=investedEnd;equityOpening=equityEnd;
+ }
+ const totalCfads=periods.reduce((s,x)=>s+x.cfads,0),totalService=periods.reduce((s,x)=>s+x.service,0);
+ const minDscr=periods.filter(x=>x.dscr!==null).length?Math.min(...periods.filter(x=>x.dscr!==null).map(x=>x.dscr)):null;
+ const minIc=periods.filter(x=>x.ic!==null).length?Math.min(...periods.filter(x=>x.ic!==null).map(x=>x.ic)):null;
+ const avgInvested=periods.length?periods.reduce((s,x)=>s+x.avgInvested,0)/periods.length:initial;
+ const avgEquity=periods.length?periods.reduce((s,x)=>s+x.avgEquity,0)/periods.length:Math.max(0,initial);
+ const netIncome=r.detail.slice(1).reduce((s,x)=>s+x.net,0);
+ const roa=avgInvested>0?netIncome/(avgInvested*n):null;
+ const roe=avgEquity>0?netIncome/(avgEquity*n):null;
+ const debt=periods.length?periods[periods.length-1].endingDebt:0;
+ const ebitda=periods.reduce((s,x)=>s+x.ebitda,0);
+ const icTotal=periods.reduce((s,x)=>s+x.interest,0)>0?ebitda/periods.reduce((s,x)=>s+x.interest,0):null;
+ const eva=periods.reduce((s,x)=>s+x.nopat-(x.avgInvested*rate),0);
+ const annualCfads=n>0?totalCfads/n:0,annuityFactor=p.finance>0?(1-Math.pow(1+p.finance,-n))/p.finance:n;
+ const maxDebtCapacity=Math.max(0,annualCfads/1.3)*annuityFactor;
+ const unitMargin=p.unitPrice-p.unitVarCost;
+ const year1OperatingCashCosts=(m.prod[1]||0)+(m.sales[1]||0)+(m.admin[1]||0);
+ const year1VariableCost=Math.max(0,(p.units||0)*(p.unitVarCost||0));
+ const fixed=Math.max(0,year1OperatingCashCosts-year1VariableCost);
+ const beUnits=unitMargin>0?fixed/unitMargin:null;
+ const beSales=beUnits!==null?beUnits*p.unitPrice:null;
+ const year1Sales=r.detail[1]?r.detail[1].rev:0;
+ const safety=year1Sales>0&&beSales!==null?1-beSales/year1Sales:null;
+ const beUtilization=beUnits!==null&&p.capacity>0?beUnits/p.capacity:null;
+ const f=(name,formula,sub,result,meaning)=>'<div class="formula"><b>'+name+'</b><br><br><b>Fórmula:</b> '+formula+'<br><b>Sustitución:</b> '+sub+'<br><b>Resultado:</b> '+result+'<br><b>Interpretación:</b> '+meaning+'</div>';
+ let html='<h3>Procedimiento matemático desarrollado</h3><p>El procedimiento muestra fórmula, sustitución, resultado e interpretación. Los indicadores de deuda se calculan por período para identificar el año crítico.</p>';
+ html+=f('1. VAN','VAN = Σ CFₜ/(1+r)ᵗ','r = '+pct(rate)+'; CF₀ = '+money(cf[0])+', flujos posteriores = '+cf.slice(1).map((x,i)=>'CF'+(i+1)+'='+money(x)).join('; '),money(van),van>0?'VAN positivo: creación de valor al WACC utilizado.':'VAN no positivo: no se recupera el costo de capital al WACC utilizado.');
+ html+=f('2. TIR','Σ CFₜ/(1+TIR)ᵗ = 0','Newton-Raphson aplicado sobre el flujo; tasa final = '+pct(r.irr),pct(r.irr),r.irr>rate?'La TIR supera el WACC.':'La TIR no supera el WACC.');
+ html+='<div class="formula"><b>3. Newton-Raphson</b><br><br><b>Fórmula:</b> rₙ₊₁ = rₙ − f(rₙ)/f′(rₙ)<br><b>Iteraciones:</b> '+r.its.length+'<br><div class="tablewrap"><table><thead><tr><th>i</th><th>rₙ</th><th>f(rₙ)</th><th>f′(rₙ)</th><th>rₙ₊₁</th><th>Error</th></tr></thead><tbody>'+r.its.map(x=>'<tr><td>'+x.i+'</td><td>'+pct(x.r)+'</td><td>'+num(x.f)+'</td><td>'+num(x.d)+'</td><td>'+pct(x.nr)+'</td><td>'+num(x.err)+'</td></tr>').join('')+'</tbody></table></div><b>Resultado:</b> '+pct(r.irr)+'.</div>';
+ html+=f('4. TIRM','TIRM = (FV positivos / |VP negativos|)^(1/n) − 1','Tasa financiación = '+pct(p.finance)+'; tasa reinversión = '+pct(p.reinvest),pct(tm),tm!==null?'Incorpora tasas distintas para financiación y reinversión.':'No calculable con los flujos actuales.');
+ html+=f('5. Índice de rentabilidad','IR = VP(flujos positivos futuros) / inversión inicial','VP flujos positivos futuros = '+money(irIndex===null?0:irIndex*initial)+'; inversión inicial = '+money(initial),irIndex===null?'No calculable':irIndex.toFixed(2),irIndex!==null&&irIndex>1?'El valor presente de los flujos positivos futuros supera la inversión inicial.':'El valor presente de los flujos positivos futuros no supera la inversión inicial.');
+ html+=f('6. Relación beneficio/costo financiera','B/C = VP(beneficios financieros) / VP(costos financieros)','VP beneficios = '+money(bcData.pvBenefits)+'; VP costos = '+money(bcData.pvCosts),bc===null?'No calculable':bc.toFixed(2),bc!==null&&bc>1?'Los beneficios financieros presentes superan los costos.':'Los beneficios financieros presentes no superan los costos.');
+ html+=f('7. ROI','ROI = flujo neto acumulado / inversión inicial','Flujo neto acumulado = '+money(totalNet)+'; inversión = '+money(initial),pct(roi),roi!==null&&roi>0?'Retorno acumulado positivo.':'Retorno acumulado no positivo.');
+ html+=f('8. ROA','ROA = utilidad neta acumulada / capital invertido promedio / n','Utilidad neta = '+money(netIncome)+'; capital invertido promedio = '+money(avgInvested)+'; n = '+n,pct(roa),roa!==null&&roa>0?'Rentabilidad anualizada aproximada positiva sobre el capital invertido promedio.':'Rentabilidad sobre activos/capital no positiva o no calculable.');
+ html+=f('9. ROE','ROE = utilidad neta acumulada / patrimonio promedio / n','Utilidad neta = '+money(netIncome)+'; patrimonio promedio estimado = '+money(avgEquity)+'; n = '+n,pct(roe),roe!==null&&roe>0?'Rentabilidad anualizada aproximada positiva para el patrimonio.':'Rentabilidad del patrimonio no positiva o no calculable.');
+ html+=f('10. DSCR mínimo','DSCRₜ = CFADSₜ / (interesesₜ + principalₜ)','Mínimo entre períodos con deuda; servicio total = '+money(totalService)+'; CFADS total = '+money(totalCfads),minDscr===null?'No hay deuda':minDscr.toFixed(2)+'x',minDscr===null||minDscr>=1.3?'El año crítico mantiene una cobertura igual o superior a 1,30x.':'Existe al menos un período con cobertura inferior a 1,30x.');
+ html+=f('11. Cobertura de intereses mínima','Coberturaₜ = EBITDAₜ / interesesₜ','Mínimo entre períodos con intereses',minIc===null?'No hay intereses':minIc.toFixed(2)+'x',minIc===null||minIc>=2?'El período crítico mantiene una cobertura de al menos 2x.':'El período crítico presenta cobertura inferior a 2x.');
+ html+=f('12. EVA','EVAₜ = NOPATₜ − (capital invertido promedioₜ × WACC)','Suma de EVA anual; WACC = '+pct(rate),money(eva),eva>0?'Creación de valor económica acumulada positiva.':'No se observa creación de valor económica acumulada positiva.');
+ html+=f('13. Capacidad máxima de endeudamiento','Deuda máxima ≈ (CFADS promedio / DSCR objetivo) × factor de anualidad','CFADS promedio = '+money(annualCfads)+'; DSCR objetivo = 1,30x; tasa financiación = '+pct(p.finance),money(maxDebtCapacity),'Estimación orientativa; debe contrastarse con las condiciones reales del crédito.');
+ html+=f('14. Punto de equilibrio','Q* = Costos fijos operativos de caja / (Precio − Costo variable unitario)','Costos fijos año 1 = '+money(fixed)+'; precio = '+money(p.unitPrice)+'; costo variable unitario = '+money(p.unitVarCost),beUnits===null?'No calculable':num(beUnits)+' unidades',beUnits!==null?'El volumen del año 1 debe superar Q* para cubrir los costos fijos operativos de caja considerados.':'No existe margen unitario positivo.');
+ html+=f('15. Utilización al punto de equilibrio','U* = Q* / Capacidad instalada','Q* = '+(beUnits===null?'No calculable':num(beUnits))+'; capacidad = '+num(p.capacity),pct(beUtilization),beUtilization!==null&&beUtilization<=1?'El punto de equilibrio es alcanzable dentro de la capacidad instalada.':'El punto de equilibrio no es alcanzable con la capacidad declarada o no puede calcularse.');
+ html+=f('16. Margen de seguridad','MS = 1 − Ventas de equilibrio / Ventas del año 1','Ventas equilibrio = '+money(beSales||0)+'; ventas año 1 = '+money(year1Sales),pct(safety),safety!==null&&safety>0?'Existe margen antes de alcanzar el punto de equilibrio.':'No existe margen positivo o no es calculable.');
+ html+='<div class="formula"><b>15. Servicio de deuda por año</b><div class="tablewrap"><table><thead><tr><th>Año</th><th>Deuda inicial</th><th>Principal</th><th>Interés</th><th>Deuda final</th><th>CFADS</th><th>DSCR</th><th>Cobertura</th></tr></thead><tbody>'+periods.map(x=>'<tr><td>'+x.t+'</td><td>'+money(x.openingDebt)+'</td><td>'+money(x.principal)+'</td><td>'+money(x.interest)+'</td><td>'+money(x.endingDebt)+'</td><td>'+money(x.cfads)+'</td><td>'+(x.dscr===null?'—':x.dscr.toFixed(2)+'x')+'</td><td>'+(x.ic===null?'—':x.ic.toFixed(2)+'x')+'</td></tr>').join('')+'</tbody></table></div></div>';
+ html+='<div class="interp"><b>Payback simple:</b> '+(Number.isFinite(pb)?pb.toFixed(2)+' años':'no se recupera')+' · <b>Payback descontado:</b> '+(Number.isFinite(pbd)?pbd.toFixed(2)+' años':'no se recupera dentro del horizonte')+'.</div>';
+ return html;
+}
+function sectorAnalysis(p,m,r){
+ const rev1=m.rev[1]||0, expectedRevenue=p.units*p.unitPrice, variableCost=p.units*p.unitVarCost, unitMargin=p.unitPrice-p.unitVarCost;
+ const margin= p.unitPrice>0?unitMargin/p.unitPrice:0, util=p.capacity>0?p.units/p.capacity:0, revWorker=p.workers>0?rev1/p.workers:0, recurring=p.recurring;
+ const revenueGap=expectedRevenue>0?(rev1/expectedRevenue)-1:null;
+ const variableCostShare=rev1>0?variableCost/rev1:null;
+ const sectorConsistency=expectedRevenue>0&&Math.abs(revenueGap)<=.05;
+ const operatingCashCosts=(m.prod[1]||0)+(m.sales[1]||0)+(m.admin[1]||0);
+ const fixedOp=Math.max(0,operatingCashCosts-variableCost);
+ const breakUnits=unitMargin>0?fixedOp/unitMargin:null;
+ const breakSales=breakUnits!==null?breakUnits*p.unitPrice:null;
+ const cards=[
+  ['Utilización de capacidad',pct(util),util<=1?'Mide el uso de la capacidad instalada. Un nivel bajo puede indicar capacidad ociosa; un nivel superior al 100% exige revisar la consistencia operativa.': 'La producción declarada supera la capacidad instalada y debe corregirse.'],
+  ['Margen unitario',money(unitMargin),unitMargin>0?'Cada unidad genera margen positivo antes de costos fijos e impuestos.':'El costo variable unitario supera el precio: la operación destruye margen por unidad.'],
+  ['Margen de contribución',pct(margin),margin>0?'Existe contribución positiva para absorber costos fijos y financiar el retorno de la inversión.':'El margen es nulo o negativo; la estructura de precios/costos debe revisarse.'],
+  ['Ingreso por trabajador',money(revWorker),revWorker>0?'Indicador de productividad monetaria laboral para comparar la escala operativa del proyecto.':'No hay trabajadores registrados; el indicador no puede interpretarse.'],
+  ['Ingresos recurrentes',pct(recurring),recurring>=.6?'Alta recurrencia: aporta previsibilidad a los flujos, aunque debe verificarse la retención de clientes.':recurring>=.3?'Recurrencia intermedia: combina ingresos recurrentes y variables.':'Baja recurrencia: el flujo depende en mayor medida de ventas o contratos no recurrentes.'],
+  ['Consistencia ingreso sectorial',revenueGap===null?'No calculable':pct(revenueGap),sectorConsistency?'Unidades × precio coincide con el ingreso del año 1 dentro de ±5%.':'Revisar: unidades × precio no coincide con el ingreso del flujo del año 1; la diferencia debe explicarse.'],
+  ['Costo variable / ingreso',variableCostShare===null?'No calculable':pct(variableCostShare),variableCostShare!==null&&variableCostShare<1?'La estructura unitaria conserva margen bruto positivo.':'El costo variable estimado alcanza o supera el ingreso del año 1.'],
+  ['Punto de equilibrio',Number.isFinite(breakUnits)?num(breakUnits)+' unidades':'No calculable',Number.isFinite(breakUnits)?'Volumen estimado necesario para cubrir costos operativos fijos con el margen unitario informado.':'No existe margen unitario positivo para calcular un punto de equilibrio económico.']
+ ];
+ const sectorTables={
+  primaria:[['Variable crítica','Producción física y precio de venta'],['Riesgo dominante','Clima, precios de insumos y volatilidad de mercado'],['Lectura financiera','La sensibilidad de ingresos y costos puede modificar rápidamente VAN y TIR']],
+  industrial:[['Variable crítica','Utilización de capacidad y costo unitario'],['Riesgo dominante','Energía, insumos, escala y obsolescencia'],['Lectura financiera','La absorción de costos fijos es determinante para el margen y el VAN']],
+  construccion:[['Variable crítica','Costo total y cumplimiento del cronograma'],['Riesgo dominante','Sobrecostos, retrasos y capital de trabajo'],['Lectura financiera','Los desfases temporales afectan directamente el valor presente de los flujos']],
+  comercio:[['Variable crítica','Margen comercial y rotación de inventarios'],['Riesgo dominante','Demanda, precios y capital inmovilizado'],['Lectura financiera','Una baja rotación puede deteriorar liquidez aun con VAN positivo']],
+  servicios:[['Variable crítica','Productividad laboral y recurrencia'],['Riesgo dominante','Costos laborales y concentración de clientes'],['Lectura financiera','La estabilidad de ingresos recurrentes fortalece la previsibilidad del flujo']],
+  tecnologia:[['Variable crítica','Recurrencia y escalabilidad'],['Riesgo dominante','Obsolescencia, adquisición de clientes e intangibles'],['Lectura financiera','El crecimiento debe sostenerse sin elevar desproporcionadamente el costo de adquisición']]
+ };
+ const rowsSector=sectorTables[p.sector].map(x=>'<tr><td>'+x[0]+'</td><td>'+x[1]+'</td></tr>').join('');
+ const utilBar=Math.max(0,Math.min(100,util*100));
+ const diagnosis=util>1?'La utilización declarada supera el 100% de la capacidad; antes de interpretar la viabilidad debe ajustarse producción o capacidad.':unitMargin<=0?'El principal problema sectorial es económico-operativo: el margen unitario no cubre el costo variable.':!sectorConsistency?'Existe una inconsistencia entre unidades × precio y los ingresos del flujo del año 1; debe conciliarse antes de considerar robusta la evaluación.':util<.5?'Existe capacidad ociosa significativa. La evaluación debe comprobar si la demanda proyectada permite elevar la utilización sin aumentar proporcionalmente los costos.':margin<.2?'El margen de contribución es relativamente estrecho; pequeños cambios en precio o costos pueden alterar la generación de valor.':'La estructura operativa presenta una contribución positiva y una utilización de capacidad razonable; debe contrastarse con VAN, TIR, deuda y escenarios.';
+ return '<div class="sector-grid">'+cards.map(x=>'<div class="sector-card"><h4>'+x[0]+'</h4><div class="big">'+x[1]+'</div><p>'+x[2]+'</p></div>').join('')+'</div>'+
+ '<div class="sector-section"><h3>Lectura de capacidad y productividad</h3><p><b>Utilización:</b> '+pct(util)+' de la capacidad instalada.</p><div class="bar"><i style="width:'+utilBar+'%"></i></div><p><b>Ingresos año 1:</b> '+money(rev1)+' · <b>Ingresos por trabajador:</b> '+money(revWorker)+' · <b>Unidades proyectadas:</b> '+num(p.units)+' · <b>Capacidad:</b> '+num(p.capacity)+'</p></div>'+
+ '<div class="sector-section"><h3>Variables estructurales del sector</h3><div class="tablewrap"><table class="sector-table"><thead><tr><th>Dimensión</th><th>Interpretación</th></tr></thead><tbody>'+rowsSector+'</tbody></table></div></div>'+
+ '<div class="sector-section"><h3>Relación entre operación y viabilidad financiera</h3><div class="sector-conclusion"><b>Diagnóstico:</b> '+diagnosis+'<br><br><b>Implicación financiera:</b> el análisis sectorial no reemplaza VAN/TIR; identifica los mecanismos operativos que explican por qué los flujos pueden mejorar o deteriorarse. Para una decisión integral, el diagnóstico debe contrastarse con el VAN, la TIR, la TIRM, el payback y los escenarios de sensibilidad.</div></div>';
+}
+function macroAnalysis(p,m,r,van){
+ const growth=Number($('macroGrowth').value)||0, ipc=Number($('ipc').value)||0, ipp=Number($('ipp').value)||0, demand=Number($('macroDemand').value)||0;
+ const nominalWacc=p.wacc, realWacc=(1+nominalWacc)/(1+ipc/100)-1;
+ const demandFactor=1+demand/100;
+ const projectedGrowth=growth/100+demand/100;
+ const revBase=m.rev.slice(1).reduce((s,x)=>s+x,0), costBase=m.prod.slice(1).reduce((s,x)=>s+x,0)+m.sales.slice(1).reduce((s,x)=>s+x,0);
+ const revenueFactor=Math.max(0,1+projectedGrowth);
+ const costFactor=Math.max(0,1+(Math.max(ipp,0)+Math.max(ipc,0))/100);
+ const revImpact=revBase*(revenueFactor-1);
+ const costImpact=costBase*(costFactor-1);
+ const macroDeltaRevenue=revImpact, macroDeltaCost=costImpact, macroNetImpact=macroDeltaRevenue-macroDeltaCost;
+ const macroReturn=(Number.isFinite(r.irr)?r.irr:0)-realWacc;
+ const macroTrace={observed:{growth,ipc,ipp},assumption:{demand},transmission:{revenueFactor,costFactor,macroDeltaRevenue,macroDeltaCost,macroNetImpact,realWacc},decision:{macroReturn}};
+ const growthState=growth>=3?'expansión moderada/favorable':growth>=1?'crecimiento positivo pero limitado':'bajo dinamismo';
+ const inflationState=ipc<=3?'presión inflacionaria baja':ipc<=6?'presión inflacionaria intermedia':'presión inflacionaria elevada';
+ const ippState=ipp<0?'menor presión reciente sobre precios de productores':ipp<=3?'presión de costos controlable':'presión de costos elevada';
+ const demandState=demand>0?'el supuesto incrementa la demanda frente al escenario de referencia':demand<0?'el supuesto reduce la demanda frente al escenario de referencia':'el supuesto mantiene la demanda sin ajuste';
+ const macroRisk=(ipc>6?1:0)+(ipp>3?1:0)+(growth<1?1:0)+(demand<0?1:0);
+ const overall=macroRisk>=2?'El entorno macroeconómico introduce riesgos relevantes que pueden deteriorar ingresos reales, márgenes y valor presente.':macroRisk===1?'El entorno macroeconómico presenta una señal de riesgo que debe incorporarse a sensibilidad y escenarios.':'El entorno macroeconómico no muestra, bajo estos supuestos, una presión dominante; aun así debe contrastarse con el sector específico.';
+ const rows=[
+  ['Crecimiento',''+growth.toFixed(2)+'%','Actividad económica y demanda potencial',growthState,'Un crecimiento mayor favorece la demanda; un crecimiento bajo reduce el espacio para expansión de ventas.'],
+  ['IPC',''+ipc.toFixed(2)+'%','Precios y poder adquisitivo',inflationState,'El IPC puede elevar precios nominales y costos; si los ingresos no se ajustan proporcionalmente, cae el margen real.'],
+  ['IPP',''+ipp.toFixed(2)+'%','Costos de productores e insumos',ippState,'Un IPP elevado presiona costos de producción; un IPP negativo o bajo puede aliviar el costo de insumos, según la estructura sectorial.'],
+  ['Demanda del proyecto',(demand>=0?'+':'')+demand.toFixed(2)+'%','Ventas proyectadas',demandState,'El ajuste se transmite directamente a los ingresos del proyecto y, por tanto, al flujo de caja.']
+ ];
+ const table=rows.map(x=>'<tr><td><b>'+x[0]+'</b></td><td>'+x[1]+'</td><td>'+x[2]+'</td><td>'+x[3]+'</td><td>'+x[4]+'</td></tr>').join('');
+ return '<div class="sector-section"><h3>1. Lectura de los indicadores macroeconómicos</h3><div class="tablewrap"><table class="sector-table"><thead><tr><th>Indicador</th><th>Valor</th><th>Canal de transmisión</th><th>Diagnóstico</th><th>Efecto esperado sobre el proyecto</th></tr></thead><tbody>'+table+'</tbody></table></div></div>'+
+ '<div class="sector-section"><h3>2. Transmisión hacia el proyecto</h3><div class="sector-grid">'+
+ '<div class="sector-card"><h4>Factor de ingresos</h4><div class="big">'+(revenueFactor*100).toFixed(2)+'%</div><p>Multiplicador indicativo de ingresos derivado del crecimiento y del ajuste de demanda.</p></div>'+
+ '<div class="sector-card"><h4>Factor de costos</h4><div class="big">'+(costFactor*100).toFixed(2)+'%</div><p>Multiplicador indicativo de costos derivado de IPC e IPP.</p></div>'+
+ '<div class="sector-card"><h4>Impacto neto acumulado</h4><div class="big">'+money(macroNetImpact)+'</div><p>Diferencia entre incremento indicativo de ingresos e incremento indicativo de costos.</p></div>'+
+ '<div class="sector-card"><h4>WACC real aproximado</h4><div class="big">'+pct(realWacc)+'</div><p>Conversión de la tasa nominal de descuento a términos reales mediante inflación.</p></div>'+
+ '</div></div>'+
+ '<div class="sector-section"><h3>2.1 Trazabilidad macroeconómica</h3><div class="tablewrap"><table class="sector-table"><thead><tr><th>Origen</th><th>Supuesto</th><th>Transmisión</th><th>Efecto</th></tr></thead><tbody>'+
+ '<tr><td>Indicadores macroeconómicos</td><td>Crecimiento '+growth.toFixed(2)+'%; IPC '+ipc.toFixed(2)+'%; IPP '+ipp.toFixed(2)+'%</td><td>Ingresos y costos</td><td>'+money(macroNetImpact)+' impacto neto indicativo</td></tr>'+
+ '<tr><td>Supuesto del proyecto</td><td>Demanda '+(demand>=0?'+':'')+demand.toFixed(2)+'%</td><td>Ingresos</td><td>Factor '+(revenueFactor*100).toFixed(2)+'%</td></tr>'+
+ '<tr><td>Tasa de descuento</td><td>WACC nominal '+pct(nominalWacc)+'</td><td>Ajuste por IPC</td><td>WACC real '+pct(realWacc)+'</td></tr>'+
+ '</tbody></table></div></div>'+
+ '<div class="sector-section"><h3>3. Implicación sobre la viabilidad financiera</h3><div class="sector-conclusion"><b>Lectura integral:</b> '+overall+' <br><br><b>Rentabilidad frente al costo de capital real:</b> '+(realReturn>0?'la TIR supera aproximadamente el WACC real bajo los supuestos actuales.':'la TIR no supera el WACC real bajo los supuestos actuales; debe revisarse la estructura de ingresos, costos o financiación.')+'<br><br><b>Conclusión macroeconómica:</b> el contexto no debe quedarse como información descriptiva: debe utilizarse para justificar los supuestos de crecimiento de ingresos, evolución de costos, demanda y tasa de descuento. La prueba final debe realizarse mediante escenarios y sensibilidad.</div></div>'+
+ '<div class="sector-section"><h3>4. Escenarios macroeconómicos recomendados</h3><div class="tablewrap"><table class="sector-table"><thead><tr><th>Escenario</th><th>Supuesto</th><th>Lectura</th></tr></thead><tbody>'+
+ '<tr><td><b>Expansivo</b></td><td>Crecimiento y demanda superiores al caso base</td><td>Mayor volumen de ventas, mejor absorción de costos fijos y mayor generación de flujo.</td></tr>'+
+ '<tr><td><b>Base</b></td><td>Valores macroeconómicos introducidos</td><td>Representa la hipótesis central contra la cual se evalúa la viabilidad.</td></tr>'+
+ '<tr><td><b>Adverso</b></td><td>Menor crecimiento, mayor inflación/presión de costos o menor demanda</td><td>Reduce ingresos reales, comprime márgenes y puede deteriorar VAN, TIR y capacidad de servicio de deuda.</td></tr>'+
+ '</tbody></table></div></div>'+
+ '<div class="sector-conclusion"><b>Dictamen macroeconómico:</b> '+overall+' <b>El resultado debe leerse conjuntamente con la evaluación sectorial, los indicadores financieros y la sensibilidad de variables críticas.</b></div>';
+}
+function scenarios(p,m){
+ const make=(label,factor,macro=0)=>{
+  const mm=JSON.parse(JSON.stringify(m));
+  for(let t=1;t<=p.n;t++){
+   mm.rev[t]*=factor;
+   mm.prod[t]*=(2-factor)*(1+macro);
+   mm.sales[t]*=(2-factor)*(1+macro);
+   mm.fin[t]*=(1+macro);
+   mm.admin[t]*=(1+macro);
+  }
+  const z=calc(p,mm),van=npv(p.wacc,z.cf),ir=irrNewton(z.cf),br=irrBisection(z.cf),tir=ir.converged?ir.r:br;
+  return {label,van,tir,pb:payback(z.cf,0),pbd:payback(z.cf,p.wacc),cf:z.cf};
+ };
+ const macroDemand=Number($('macroDemand').value)||0, macroGrowth=Number($('macroGrowth').value)||0, macroInflation=Number($('ipc').value)||0, macroIPP=Number($('ipp').value)||0;
+ const macroStress=Math.max(0,Math.abs(macroDemand)/100+Math.max(0,macroInflation-6)/100+Math.max(0,macroIPP-3)/100);
+ const pessimisticRevenue=.85*(1+Math.min(0,macroDemand)/100);
+ const optimisticRevenue=1.15*(1+Math.max(0,macroDemand)/100);
+ const pessimisticCost=0.08+Math.max(0,macroInflation-6)/100+Math.max(0,macroIPP-3)/100;
+ const optimisticCost=-.03-Math.max(0,macroInflation-6)/200;
+ const vals=[make('Pesimista',Math.max(.5,pessimisticRevenue),pessimisticCost),make('Base',1,0),make('Optimista',Math.min(1.5,optimisticRevenue),optimisticCost)];
+ const base=vals[1];
+ const table=vals.map(x=>'<tr><td><b>'+x.label+'</b></td><td>'+money(x.van)+'</td><td>'+pct(x.tir)+'</td><td>'+(Number.isFinite(x.pb)?x.pb.toFixed(2)+' años':'No recupera')+'</td><td>'+(Number.isFinite(x.pbd)?x.pbd.toFixed(2)+' años':'No recupera')+'</td><td>'+(x.van>0&&Number.isFinite(x.tir)&&x.tir>p.wacc?'Favorable':'Revisar')+'</td></tr>').join('');
+ const vars=[
+  ['Ingresos',x=>{const mm=JSON.parse(JSON.stringify(m));for(let t=1;t<=p.n;t++)mm.rev[t]*=x;return npv(p.wacc,calc(p,mm).cf)}],
+  ['Costos de producción',x=>{const mm=JSON.parse(JSON.stringify(m));for(let t=1;t<=p.n;t++)mm.prod[t]*=x;return npv(p.wacc,calc(p,mm).cf)}],
+  ['Costos de ventas',x=>{const mm=JSON.parse(JSON.stringify(m));for(let t=1;t<=p.n;t++)mm.sales[t]*=x;return npv(p.wacc,calc(p,mm).cf)}],
+  ['Costos administrativos',x=>{const mm=JSON.parse(JSON.stringify(m));for(let t=1;t<=p.n;t++)mm.admin[t]*=x;return npv(p.wacc,calc(p,mm).cf)}],
+  ['WACC',x=>npv(x,m.cf)]
+ ];
+ const sens=[];
+ for(const [name,fn] of vars){
+  let down,up;
+  if(name==='WACC'){down=fn(Math.max(-.5,p.wacc-.02));up=fn(p.wacc+.02)}
+  else {down=fn(.8);up=fn(1.2)}
+  sens.push({name,down,up,range:Math.abs(up-down)});
+ }
+ sens.sort((a,b)=>b.range-a.range);
+ const maxRange=Math.max(...sens.map(x=>x.range),1);
+ const sensRows=sens.map(x=>{
+   const low=x.down<base.van?'↓':'↑', high=x.up<base.van?'↓':'↑';
+   return '<tr><td><b>'+x.name+'</b></td><td>'+money(x.down)+' '+low+'</td><td>'+money(x.up)+' '+high+'</td><td><div class="bar"><i style="width:'+Math.max(2,Math.min(100,x.range/maxRange*100))+'%"></i></div>'+money(x.range)+'</td></tr>';
+ }).join('');
+ const dominant=sens[0];
+ const verdict=vals[0].van<0&&vals[2].van>0?'La viabilidad es sensible al escenario: cambia entre destrucción y creación de valor.':vals[0].van>0?'Incluso el escenario pesimista conserva VAN positivo, aunque deben revisarse los riesgos de ejecución.':vals[2].van<=0?'Incluso el escenario optimista no alcanza VAN positivo; el problema parece estructural y requiere rediseño.':'Los escenarios muestran una respuesta intermedia; la variable dominante debe ser sometida a pruebas adicionales.';
+ return '<div class="sector-section"><h3>1. Comparación integral de escenarios</h3><div class="tablewrap"><table class="sector-table"><thead><tr><th>Escenario</th><th>VAN</th><th>TIR</th><th>Payback</th><th>Payback descontado</th><th>Lectura</th></tr></thead><tbody>'+table+'</tbody></table></div></div>'+
+ '<div class="sector-section"><h3>2. Sensibilidad de variables críticas</h3><p>Se modifica una variable a la vez. Para ingresos y costos se utiliza una banda de ±20%; para el WACC se prueban 2 puntos porcentuales alrededor del valor base. Los escenarios principales incorporan además los supuestos macroeconómicos introducidos en el módulo 7.</p><div class="tablewrap"><table class="sector-table"><thead><tr><th>Variable</th><th>Escenario inferior</th><th>Escenario superior</th><th>Amplitud del efecto sobre VAN</th></tr></thead><tbody>'+sensRows+'</tbody></table></div></div>'+
+ '<div class="sector-section"><h3>3. Variable de mayor sensibilidad</h3><div class="sector-conclusion"><b>'+dominant.name+'</b> presenta la mayor amplitud de cambio sobre el VAN dentro de las pruebas realizadas: <b>'+money(dominant.range)+'</b>. Esta variable debe recibir prioridad en la gestión del riesgo, la validación de supuestos y la construcción del escenario adverso. <br><br><b>Prueba macro:</b> demanda '+(macroDemand>=0?'+':'')+macroDemand.toFixed(2)+'%, crecimiento '+macroGrowth.toFixed(2)+'%, IPC '+macroInflation.toFixed(2)+'%, IPP '+macroIPP.toFixed(2)+'%.</div></div>'+
+ '<div class="sector-section"><h3>4. Lectura de viabilidad bajo incertidumbre</h3><div class="sector-conclusion"><b>Diagnóstico:</b> '+verdict+'<br><br><b>Conclusión:</b> un VAN positivo en el caso base no es suficiente para afirmar robustez. La decisión debe considerar la distribución de resultados entre escenarios y la sensibilidad de las variables críticas.</div></div>';
+}
+function matrixForSensitivity(p,m){return calc(p,m)}
+function report(p,m,r,van,tm,viable){
+ const ir=irrNewton(r.cf),tir=ir.converged?ir.r:irrBisection(r.cf),pb=payback(r.cf,0),pbd=payback(r.cf,p.wacc);
+ const bcData=benefitCost(p,m,r),bc=bcData.ratio,irIndex=profitabilityIndex(p,r);
+ const total=r.cf.reduce((s,x)=>s+x,0),roi=p.initialInvestment>0?total/p.initialInvestment:null;
+ const sector=sectorText(p), macroGrowth=Number($('macroGrowth').value)||0,ipc=Number($('ipc').value)||0,ipp=Number($('ipp').value)||0;
+ const macroRisk=(ipc>6?1:0)+(ipp>3?1:0)+(macroGrowth<1?1:0);
+ const scenariosText=van>0&&tir>p.wacc?'El caso base supera el costo de capital.':'El caso base no supera completamente el criterio de costo de capital.';
+ const decision=van>0&&tir>p.wacc&&Number.isFinite(pb)?'VIABLE BAJO LOS SUPUESTOS ACTUALES':'NO CONCLUYENTE / REQUIERE AJUSTES';
+ const recommendations=[];
+ if(van<=0)recommendations.push('revisar estructura de ingresos, costos y/o inversión inicial para recuperar creación de valor');
+ if(tir<=p.wacc)recommendations.push('revisar rentabilidad exigida y estructura de financiación');
+ if(!Number.isFinite(pbd))recommendations.push('fortalecer generación de caja para acelerar la recuperación descontada');
+ if(macroRisk>0)recommendations.push('incorporar escenarios macroeconómicos más conservadores y probar inflación, costos y demanda');
+ if(recommendations.length===0)recommendations.push('mantener control sobre variables críticas y validar los supuestos sectoriales antes de invertir');
+ return '<h2>Informe integral de evaluación financiera</h2>'+
+ '<div class="notice"><b>Dictamen:</b> '+decision+'. Este informe integra rentabilidad, creación de valor, recuperación de la inversión, estructura sectorial, contexto macroeconómico y sensibilidad.</div>'+
+ '<div class="sector-section"><h3>1. Ficha técnica</h3><p><b>Proyecto:</b> '+esc(p.project)+'<br><b>Sector:</b> '+esc(p.sector)+' · <b>CIIU:</b> '+esc(p.ciiu||'No especificado')+'<br><b>Territorio:</b> '+(p.region==='tolima'?'Tolima':'Nacional')+'<br><b>Inversión inicial:</b> '+money(p.initialInvestment)+'<br><b>Horizonte:</b> '+p.n+' años · <b>WACC:</b> '+pct(p.wacc)+'<br><b>Impuesto:</b> '+pct(p.tax)+'</p></div>'+
+ '<div class="sector-section"><h3>2. Resultados financieros centrales</h3><div class="metrics">'+metric('VAN',money(van),van>0)+metric('TIR',pct(tir),tir>p.wacc)+metric('TIRM',pct(tm),tm!==null&&tm>p.wacc)+metric('Índice de rentabilidad',irIndex===null?'—':irIndex.toFixed(2),irIndex!==null&&irIndex>1)+metric('B/C financiera',bc===null?'—':bc.toFixed(2),bc!==null&&bc>1)+metric('Payback',Number.isFinite(pb)?pb.toFixed(2)+' años':'No recupera',Number.isFinite(pb))+'</div><p><b>Lectura:</b> '+scenariosText+' La relación B/C financiera '+(bc!==null?(bc>1?'supera':'no supera'):'no es calculable')+' el umbral de 1.</p></div>'+
+ '<div class="sector-section"><h3>3. Diagnóstico sectorial</h3><p>'+sector+'</p><p>La evaluación sectorial debe interpretarse junto con utilización de capacidad, margen unitario, productividad, recurrencia y punto de equilibrio, porque estas variables explican la generación de los flujos.</p></div>'+
+ '<div class="sector-section"><h3>4. Diagnóstico macroeconómico</h3><p>Con crecimiento de referencia de <b>'+macroGrowth.toFixed(2)+'%</b>, IPC de <b>'+ipc.toFixed(2)+'%</b> e IPP de <b>'+ipp.toFixed(2)+'%</b>, el entorno presenta '+(macroRisk>=2?'riesgos macroeconómicos relevantes':macroRisk===1?'al menos una señal de riesgo que requiere sensibilidad':'sin una señal macroeconómica dominante')+'.</p><p>La interpretación debe trasladarse a demanda, precios, costos y tasa de descuento, y no quedarse como información descriptiva.</p></div>'+
+ '<div class="sector-section"><h3>5. Incertidumbre y sensibilidad</h3><p>'+scenariosText+' El análisis de sensibilidad identifica las variables cuyo cambio modifica con mayor intensidad el VAN; esas variables deben priorizarse en la gestión de riesgo.</p></div>'+
+ '<div class="sector-section"><h3>6. Recuperación y estructura de financiación</h3><p><b>Payback simple:</b> '+(Number.isFinite(pb)?pb.toFixed(2)+' años':'no se recupera')+' · <b>Payback descontado:</b> '+(Number.isFinite(pbd)?pbd.toFixed(2)+' años':'no se recupera dentro del horizonte')+'.</p></div>'+
+ '<div class="sector-section"><h3>7. Dictamen de viabilidad</h3><div class="sector-conclusion"><b>'+decision+'</b><br><br>'+ (viable?'El proyecto presenta creación de valor bajo el WACC y una rentabilidad relativa favorable.':'Los resultados actuales no permiten recomendar la inversión sin ajustes o validación adicional.')+'<br><br><b>Recomendaciones:</b><ul>'+recommendations.map(x=>'<li>'+x+'.</li>').join('')+'</ul></div></div>'+
+ '<div class="sector-section"><h3>8. Trazabilidad de la decisión</h3><p>Supuestos del proyecto → flujo de caja → VAN/TIR/TIRM → indicadores integrales → análisis sectorial → contexto macroeconómico → escenarios y sensibilidad → dictamen. La decisión debe revisarse si cambian los supuestos críticos.</p></div>';
+}
 function activate(id){document.querySelectorAll('.module').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('.module-btn').forEach(x=>x.classList.toggle('active',x.dataset.module===id));document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'})}
 document.querySelectorAll('.module-btn').forEach(b=>b.addEventListener('click',()=>activate(b.dataset.module)));
 $('enter').addEventListener('click',()=>{$('welcome').classList.add('hidden');$('app').classList.remove('hidden');activate('m1')});

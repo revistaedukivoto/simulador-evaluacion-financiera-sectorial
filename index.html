@@ -180,6 +180,7 @@ function irrBisection(cf){let lo=-.9999,hi=10,flo=npv(lo,cf),fhi=npv(hi,cf);if(f
 function mirr(cf,fin,rein){const n=cf.length-1;if(n<=0)return null;const pvNeg=cf.reduce((s,x,t)=>s+(x<0?x/Math.pow(1+fin,t):0),0),fvPos=cf.reduce((s,x,t)=>s+(x>0?x*Math.pow(1+rein,n-t):0),0);return pvNeg<0&&fvPos>=0?Math.pow(fvPos/-pvNeg,1/n)-1:null}
 function payback(cf,rate){let cum=cf[0];for(let t=1;t<cf.length;t++){const f=cf[t]/Math.pow(1+rate,t);if(cum+f>=0)return t-1+(-cum)/f;cum+=f}return Infinity}
 function benefitCost(p,m,r){const rate=p.wacc;let pvBenefits=0,pvCosts=0;for(let t=1;t<=p.n;t++){const d=r.detail[t],benefit=(d.rev||0)+(m.wcRec[t]||0)+(m.salvage[t]||0),cost=(d.op||0)+(m.fin[t]||0)+(d.tax||0)+(d.capex||0);pvBenefits+=benefit/Math.pow(1+rate,t);pvCosts+=cost/Math.pow(1+rate,t)}return {pvBenefits,pvCosts,ratio:pvCosts>0?pvBenefits/pvCosts:null}}
+function profitabilityIndex(p,r){const pvFuturePositive=r.cf.slice(1).reduce((s,x,i)=>s+(x>0?x/Math.pow(1+p.wacc,i+1):0),0);return p.initialInvestment>0?pvFuturePositive/p.initialInvestment:null}
 function runSimulation(){
  try{
   const p=inputs(),m=matrix();if(p.n<1||p.n>10)throw new Error('El horizonte debe estar entre 1 y 10 años.');
@@ -197,6 +198,7 @@ function runSimulation(){
 function integralIndicators(p,m,r,van,tm,pb,pbd){
  const disc=p.wacc;
  const bcData=benefitCost(p,m,r),bc=bcData.ratio;
+ const irIndex=profitabilityIndex(p,r);
  const totalNet=r.cf.reduce((s,x)=>s+x,0);
  const roi=p.initialInvestment>0?totalNet/p.initialInvestment:null;
  const debtBalance=[],periods=[];
@@ -256,6 +258,7 @@ function integralIndicators(p,m,r,van,tm,pb,pbd){
  const avgSales=rev/p.n;
  const marginSafety=avgSales>0&&breakSales!==null?1-breakSales/avgSales:null;
  const rows=[
+  ['Índice de rentabilidad',irIndex,irIndex===null?'No calculable':irIndex.toFixed(2),irIndex!==null&&irIndex>1,'Valor presente de los flujos positivos futuros respecto a la inversión inicial; debe ser > 1 para recuperar más valor presente que el desembolso inicial.'],
   ['Relación beneficio/costo financiera',bc,bc===null?'No calculable':bc.toFixed(2),bc!==null&&bc>1,'Beneficios financieros descontados (ingresos y recuperaciones) frente a costos financieros descontados (operación, intereses, impuestos e inversión); debe ser > 1.'],
   ['ROI',roi,pct(roi),roi!==null&&roi>0,'Retorno neto acumulado respecto a la inversión inicial.'],
   ['ROA',roa,pct(roa),roa!==null&&roa>0,'Rentabilidad anualizada aproximada sobre el capital invertido promedio del proyecto.'],
@@ -282,7 +285,7 @@ function integralIndicators(p,m,r,van,tm,pb,pbd){
 }
 function mathProcedure(p,m,r,van,tm,pb,pbd){
  const cf=r.cf,n=p.n,initial=p.initialInvestment,rate=p.wacc;
- const bcData=benefitCost(p,m,r),bc=bcData.ratio;
+ const bcData=benefitCost(p,m,r),bc=bcData.ratio,irIndex=profitabilityIndex(p,r);
  const totalNet=cf.reduce((s,x)=>s+x,0);
  const roi=initial>0?totalNet/initial:null;
  const periods=[];let openingDebt=0,assetBase=initial,equityOpening=initial;
@@ -319,16 +322,17 @@ function mathProcedure(p,m,r,van,tm,pb,pbd){
  html+=f('2. TIR','Σ CFₜ/(1+TIR)ᵗ = 0','Newton-Raphson aplicado sobre el flujo; tasa final = '+pct(r.irr),pct(r.irr),r.irr>rate?'La TIR supera el WACC.':'La TIR no supera el WACC.');
  html+='<div class="formula"><b>3. Newton-Raphson</b><br><br><b>Fórmula:</b> rₙ₊₁ = rₙ − f(rₙ)/f′(rₙ)<br><b>Iteraciones:</b> '+r.its.length+'<br><div class="tablewrap"><table><thead><tr><th>i</th><th>rₙ</th><th>f(rₙ)</th><th>f′(rₙ)</th><th>rₙ₊₁</th><th>Error</th></tr></thead><tbody>'+r.its.map(x=>'<tr><td>'+x.i+'</td><td>'+pct(x.r)+'</td><td>'+num(x.f)+'</td><td>'+num(x.d)+'</td><td>'+pct(x.nr)+'</td><td>'+num(x.err)+'</td></tr>').join('')+'</tbody></table></div><b>Resultado:</b> '+pct(r.irr)+'.</div>';
  html+=f('4. TIRM','TIRM = (FV positivos / |VP negativos|)^(1/n) − 1','Tasa financiación = '+pct(p.finance)+'; tasa reinversión = '+pct(p.reinvest),pct(tm),tm!==null?'Incorpora tasas distintas para financiación y reinversión.':'No calculable con los flujos actuales.');
- html+=f('5. Índice de rentabilidad','IR = VP(beneficios) / VP(costos)','VP beneficios = '+money(pvPos)+'; VP costos = '+money(pvNeg),bc===null?'No calculable':bc.toFixed(2),bc!==null&&bc>1?'Los beneficios presentes superan los costos.':'Los beneficios presentes no superan los costos.');
- html+=f('6. ROI','ROI = flujo neto acumulado / inversión inicial','Flujo neto acumulado = '+money(totalNet)+'; inversión = '+money(initial),pct(roi),roi!==null&&roi>0?'Retorno acumulado positivo.':'Retorno acumulado no positivo.');
- html+=f('7. ROA','ROA = utilidad neta acumulada / capital invertido promedio / n','Utilidad neta = '+money(netIncome)+'; capital invertido promedio = '+money(avgInvested)+'; n = '+n,pct(roa),roa!==null&&roa>0?'Rentabilidad anualizada aproximada positiva sobre el capital invertido promedio.':'Rentabilidad sobre activos/capital no positiva o no calculable.');
- html+=f('8. ROE','ROE = utilidad neta acumulada / patrimonio promedio / n','Utilidad neta = '+money(netIncome)+'; patrimonio promedio estimado = '+money(avgEquity)+'; n = '+n,pct(roe),roe!==null&&roe>0?'Rentabilidad anualizada aproximada positiva para el patrimonio.':'Rentabilidad del patrimonio no positiva o no calculable.');
- html+=f('9. DSCR mínimo','DSCRₜ = CFADSₜ / (interesesₜ + principalₜ)','Mínimo entre períodos con deuda; servicio total = '+money(totalService)+'; CFADS total = '+money(totalCfads),minDscr===null?'No hay deuda':minDscr.toFixed(2)+'x',minDscr===null||minDscr>=1.3?'El año crítico mantiene una cobertura igual o superior a 1,30x.':'Existe al menos un período con cobertura inferior a 1,30x.');
- html+=f('10. Cobertura de intereses mínima','Coberturaₜ = EBITDAₜ / interesesₜ','Mínimo entre períodos con intereses',minIc===null?'No hay intereses':minIc.toFixed(2)+'x',minIc===null||minIc>=2?'El período crítico mantiene una cobertura de al menos 2x.':'El período crítico presenta cobertura inferior a 2x.');
- html+=f('11. EVA','EVAₜ = NOPATₜ − (capital invertido promedioₜ × WACC)','Suma de EVA anual; WACC = '+pct(rate),money(eva),eva>0?'Creación de valor económica acumulada positiva.':'No se observa creación de valor económica acumulada positiva.');
- html+=f('12. Capacidad máxima de endeudamiento','Deuda máxima ≈ (CFADS promedio / DSCR objetivo) × factor de anualidad','CFADS promedio = '+money(annualCfads)+'; DSCR objetivo = 1,30x; tasa financiación = '+pct(p.finance),money(maxDebtCapacity),'Estimación orientativa; debe contrastarse con las condiciones reales del crédito.');
- html+=f('13. Punto de equilibrio','Q* = Costos fijos / (Precio − Costo variable unitario)','Costos fijos considerados = '+money(fixed)+'; precio = '+money(p.unitPrice)+'; costo variable unitario = '+money(p.unitVarCost),beUnits===null?'No calculable':num(beUnits)+' unidades',beUnits!==null?'El volumen debe superar Q* para cubrir los costos fijos considerados.':'No existe margen unitario positivo.');
- html+=f('14. Margen de seguridad','MS = 1 − Ventas de equilibrio / Ventas promedio','Ventas equilibrio = '+money(beSales||0)+'; ventas promedio = '+money(avgSales),pct(safety),safety!==null&&safety>0?'Existe margen antes de alcanzar el punto de equilibrio.':'No existe margen positivo o no es calculable.');
+ html+=f('5. Índice de rentabilidad','IR = VP(flujos positivos futuros) / inversión inicial','VP flujos positivos futuros = '+money(irIndex===null?0:irIndex*initial)+'; inversión inicial = '+money(initial),irIndex===null?'No calculable':irIndex.toFixed(2),irIndex!==null&&irIndex>1?'El valor presente de los flujos positivos futuros supera la inversión inicial.':'El valor presente de los flujos positivos futuros no supera la inversión inicial.');
+ html+=f('6. Relación beneficio/costo financiera','B/C = VP(beneficios financieros) / VP(costos financieros)','VP beneficios = '+money(bcData.pvBenefits)+'; VP costos = '+money(bcData.pvCosts),bc===null?'No calculable':bc.toFixed(2),bc!==null&&bc>1?'Los beneficios financieros presentes superan los costos.':'Los beneficios financieros presentes no superan los costos.');
+ html+=f('7. ROI','ROI = flujo neto acumulado / inversión inicial','Flujo neto acumulado = '+money(totalNet)+'; inversión = '+money(initial),pct(roi),roi!==null&&roi>0?'Retorno acumulado positivo.':'Retorno acumulado no positivo.');
+ html+=f('8. ROA','ROA = utilidad neta acumulada / capital invertido promedio / n','Utilidad neta = '+money(netIncome)+'; capital invertido promedio = '+money(avgInvested)+'; n = '+n,pct(roa),roa!==null&&roa>0?'Rentabilidad anualizada aproximada positiva sobre el capital invertido promedio.':'Rentabilidad sobre activos/capital no positiva o no calculable.');
+ html+=f('9. ROE','ROE = utilidad neta acumulada / patrimonio promedio / n','Utilidad neta = '+money(netIncome)+'; patrimonio promedio estimado = '+money(avgEquity)+'; n = '+n,pct(roe),roe!==null&&roe>0?'Rentabilidad anualizada aproximada positiva para el patrimonio.':'Rentabilidad del patrimonio no positiva o no calculable.');
+ html+=f('10. DSCR mínimo','DSCRₜ = CFADSₜ / (interesesₜ + principalₜ)','Mínimo entre períodos con deuda; servicio total = '+money(totalService)+'; CFADS total = '+money(totalCfads),minDscr===null?'No hay deuda':minDscr.toFixed(2)+'x',minDscr===null||minDscr>=1.3?'El año crítico mantiene una cobertura igual o superior a 1,30x.':'Existe al menos un período con cobertura inferior a 1,30x.');
+ html+=f('11. Cobertura de intereses mínima','Coberturaₜ = EBITDAₜ / interesesₜ','Mínimo entre períodos con intereses',minIc===null?'No hay intereses':minIc.toFixed(2)+'x',minIc===null||minIc>=2?'El período crítico mantiene una cobertura de al menos 2x.':'El período crítico presenta cobertura inferior a 2x.');
+ html+=f('12. EVA','EVAₜ = NOPATₜ − (capital invertido promedioₜ × WACC)','Suma de EVA anual; WACC = '+pct(rate),money(eva),eva>0?'Creación de valor económica acumulada positiva.':'No se observa creación de valor económica acumulada positiva.');
+ html+=f('13. Capacidad máxima de endeudamiento','Deuda máxima ≈ (CFADS promedio / DSCR objetivo) × factor de anualidad','CFADS promedio = '+money(annualCfads)+'; DSCR objetivo = 1,30x; tasa financiación = '+pct(p.finance),money(maxDebtCapacity),'Estimación orientativa; debe contrastarse con las condiciones reales del crédito.');
+ html+=f('14. Punto de equilibrio','Q* = Costos fijos / (Precio − Costo variable unitario)','Costos fijos considerados = '+money(fixed)+'; precio = '+money(p.unitPrice)+'; costo variable unitario = '+money(p.unitVarCost),beUnits===null?'No calculable':num(beUnits)+' unidades',beUnits!==null?'El volumen debe superar Q* para cubrir los costos fijos considerados.':'No existe margen unitario positivo.');
+ html+=f('15. Margen de seguridad','MS = 1 − Ventas de equilibrio / Ventas promedio','Ventas equilibrio = '+money(beSales||0)+'; ventas promedio = '+money(avgSales),pct(safety),safety!==null&&safety>0?'Existe margen antes de alcanzar el punto de equilibrio.':'No existe margen positivo o no es calculable.');
  html+='<div class="formula"><b>15. Servicio de deuda por año</b><div class="tablewrap"><table><thead><tr><th>Año</th><th>Deuda inicial</th><th>Principal</th><th>Interés</th><th>Deuda final</th><th>CFADS</th><th>DSCR</th><th>Cobertura</th></tr></thead><tbody>'+periods.map(x=>'<tr><td>'+x.t+'</td><td>'+money(x.openingDebt)+'</td><td>'+money(x.principal)+'</td><td>'+money(x.interest)+'</td><td>'+money(x.endingDebt)+'</td><td>'+money(x.cfads)+'</td><td>'+(x.dscr===null?'—':x.dscr.toFixed(2)+'x')+'</td><td>'+(x.ic===null?'—':x.ic.toFixed(2)+'x')+'</td></tr>').join('')+'</tbody></table></div></div>';
  html+='<div class="interp"><b>Payback simple:</b> '+(Number.isFinite(pb)?pb.toFixed(2)+' años':'no se recupera')+' · <b>Payback descontado:</b> '+(Number.isFinite(pbd)?pbd.toFixed(2)+' años':'no se recupera dentro del horizonte')+'.</div>';
  return html;
@@ -445,7 +449,7 @@ function scenarios(p,m){
 function matrixForSensitivity(p,m){return calc(p,m)}
 function report(p,m,r,van,tm,viable){
  const ir=irrNewton(r.cf),tir=ir.converged?ir.r:irrBisection(r.cf),pb=payback(r.cf,0),pbd=payback(r.cf,p.wacc);
- const bcData=benefitCost(p,m,r),bc=bcData.ratio;
+ const bcData=benefitCost(p,m,r),bc=bcData.ratio,irIndex=profitabilityIndex(p,r);
  const total=r.cf.reduce((s,x)=>s+x,0),roi=p.initialInvestment>0?total/p.initialInvestment:null;
  const sector=sectorText(p), macroGrowth=Number($('macroGrowth').value)||0,ipc=Number($('ipc').value)||0,ipp=Number($('ipp').value)||0;
  const macroRisk=(ipc>6?1:0)+(ipp>3?1:0)+(macroGrowth<1?1:0);
@@ -460,7 +464,7 @@ function report(p,m,r,van,tm,viable){
  return '<h2>Informe integral de evaluación financiera</h2>'+
  '<div class="notice"><b>Dictamen:</b> '+decision+'. Este informe integra rentabilidad, creación de valor, recuperación de la inversión, estructura sectorial, contexto macroeconómico y sensibilidad.</div>'+
  '<div class="sector-section"><h3>1. Ficha técnica</h3><p><b>Proyecto:</b> '+esc(p.project)+'<br><b>Sector:</b> '+esc(p.sector)+' · <b>CIIU:</b> '+esc(p.ciiu||'No especificado')+'<br><b>Territorio:</b> '+(p.region==='tolima'?'Tolima':'Nacional')+'<br><b>Inversión inicial:</b> '+money(p.initialInvestment)+'<br><b>Horizonte:</b> '+p.n+' años · <b>WACC:</b> '+pct(p.wacc)+'<br><b>Impuesto:</b> '+pct(p.tax)+'</p></div>'+
- '<div class="sector-section"><h3>2. Resultados financieros centrales</h3><div class="metrics">'+metric('VAN',money(van),van>0)+metric('TIR',pct(tir),tir>p.wacc)+metric('TIRM',pct(tm),tm!==null&&tm>p.wacc)+metric('B/C financiera',bc===null?'—':bc.toFixed(2),bc!==null&&bc>1)+metric('Payback',Number.isFinite(pb)?pb.toFixed(2)+' años':'No recupera',Number.isFinite(pb))+'</div><p><b>Lectura:</b> '+scenariosText+' La relación B/C financiera '+(bc!==null?(bc>1?'supera':'no supera'):'no es calculable')+' el umbral de 1.</p></div>'+
+ '<div class="sector-section"><h3>2. Resultados financieros centrales</h3><div class="metrics">'+metric('VAN',money(van),van>0)+metric('TIR',pct(tir),tir>p.wacc)+metric('TIRM',pct(tm),tm!==null&&tm>p.wacc)+metric('Índice de rentabilidad',irIndex===null?'—':irIndex.toFixed(2),irIndex!==null&&irIndex>1)+metric('B/C financiera',bc===null?'—':bc.toFixed(2),bc!==null&&bc>1)+metric('Payback',Number.isFinite(pb)?pb.toFixed(2)+' años':'No recupera',Number.isFinite(pb))+'</div><p><b>Lectura:</b> '+scenariosText+' La relación B/C financiera '+(bc!==null?(bc>1?'supera':'no supera'):'no es calculable')+' el umbral de 1.</p></div>'+
  '<div class="sector-section"><h3>3. Diagnóstico sectorial</h3><p>'+sector+'</p><p>La evaluación sectorial debe interpretarse junto con utilización de capacidad, margen unitario, productividad, recurrencia y punto de equilibrio, porque estas variables explican la generación de los flujos.</p></div>'+
  '<div class="sector-section"><h3>4. Diagnóstico macroeconómico</h3><p>Con crecimiento de referencia de <b>'+macroGrowth.toFixed(2)+'%</b>, IPC de <b>'+ipc.toFixed(2)+'%</b> e IPP de <b>'+ipp.toFixed(2)+'%</b>, el entorno presenta '+(macroRisk>=2?'riesgos macroeconómicos relevantes':macroRisk===1?'al menos una señal de riesgo que requiere sensibilidad':'sin una señal macroeconómica dominante')+'.</p><p>La interpretación debe trasladarse a demanda, precios, costos y tasa de descuento, y no quedarse como información descriptiva.</p></div>'+
  '<div class="sector-section"><h3>5. Incertidumbre y sensibilidad</h3><p>'+scenariosText+' El análisis de sensibilidad identifica las variables cuyo cambio modifica con mayor intensidad el VAN; esas variables deben priorizarse en la gestión de riesgo.</p></div>'+

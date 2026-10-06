@@ -45,7 +45,7 @@ button,input,select{font:inherit}.hidden{display:none!important}.screen{min-heig
  <nav class="menu">
   <a class="module-btn active" href="#m1" data-module="m1"><b>1. Propósito y guía</b><span>Qué evalúa el simulador y cómo utilizarlo.</span></a>
   <a class="module-btn" href="#m2" data-module="m2"><b>2. Datos generales</b><span>Proyecto, sector, CIIU, territorio y horizonte.</span></a>
-  <a class="module-btn" href="#m3" data-module="m3"><b>3. Inversión y flujo de caja</b><span>Inversión inicial y flujos proyectados.</span></a>
+  <a class="module-btn" href="#m3" data-module="m3"><b>3. Inversión</b><span>Inversión inicial y estructura de desembolso.</span></a>
   <a class="module-btn" href="#m4" data-module="m4"><b>4. Ejecutar evaluación</b><span>Calcular los indicadores financieros.</span></a>
   <a class="module-btn" href="#m5" data-module="m5"><b>5. Procedimiento matemático</b><span>Fórmulas y cálculo de la TIR.</span></a>
   <a class="module-btn" href="#m6" data-module="m6"><b>6. Evaluación sectorial</b><span>Variables e indicadores complementarios.</span></a>
@@ -57,7 +57,7 @@ button,input,select{font:inherit}.hidden{display:none!important}.screen{min-heig
  <section id="m1" class="module active">
   <h2>1. Propósito y guía</h2>
   <p>El simulador está diseñado para evaluar financieramente proyectos de inversión y explicar el resultado, no solamente producir cifras.</p>
-  <div class="notice"><b>Flujo de trabajo recomendado:</b> 1) diligenciar datos generales; 2) registrar inversión y flujo; 3) ejecutar evaluación; 4) revisar procedimiento matemático; 5) analizar sector y contexto; 6) contrastar escenarios; 7) generar informe.</div>
+  <div class="notice"><b>Flujo de trabajo recomendado:</b> 1) diligenciar datos generales; 2) registrar la inversión; 3) ejecutar evaluación; 4) revisar procedimiento matemático; 5) analizar sector y contexto; 6) contrastar escenarios; 7) generar informe.</div>
   <ul class="module-list"><li>VAN: creación o destrucción de valor presente.</li><li>TIR y TIRM: rentabilidad del proyecto bajo criterios de referencia.</li><li>Payback y Payback descontado: tiempo de recuperación.</li><li>Indicadores de deuda y rentabilidad: apoyo a la evaluación financiera.</li><li>Escenarios y sensibilidad: identificación de variables críticas.</li></ul>
  </section>
 
@@ -91,7 +91,7 @@ button,input,select{font:inherit}.hidden{display:none!important}.screen{min-heig
    <div class="field"><label>Tasa de impuesto (%)</label><input id="tax" type="number" step=".1" value="35"></div>
   </div>
   <div class="notice">La <b>inversión inicial</b> se registra explícitamente y constituye el desembolso del Año 0. El crédito inicial, si existe, se presenta por separado para determinar el flujo neto inicial.</div>
-  <div class="tablewrap matrix"><table id="cashTable"></table></div>
+  
  </section>
 
  <section id="m4" class="module">

@@ -350,8 +350,11 @@ function mathProcedure(p,m,r,van,tm,pb,pbd){
  return html;
 }
 function sectorAnalysis(p,m,r){
- const rev1=m.rev[1]||0, variableCost=p.units*p.unitVarCost, unitMargin=p.unitPrice-p.unitVarCost;
+ const rev1=m.rev[1]||0, expectedRevenue=p.units*p.unitPrice, variableCost=p.units*p.unitVarCost, unitMargin=p.unitPrice-p.unitVarCost;
  const margin= p.unitPrice>0?unitMargin/p.unitPrice:0, util=p.capacity>0?p.units/p.capacity:0, revWorker=p.workers>0?rev1/p.workers:0, recurring=p.recurring;
+ const revenueGap=expectedRevenue>0?(rev1/expectedRevenue)-1:null;
+ const variableCostShare=rev1>0?variableCost/rev1:null;
+ const sectorConsistency=expectedRevenue>0&&Math.abs(revenueGap)<=.05;
  const operatingCashCosts=(m.prod[1]||0)+(m.sales[1]||0)+(m.admin[1]||0);
  const fixedOp=Math.max(0,operatingCashCosts-variableCost);
  const breakUnits=unitMargin>0?fixedOp/unitMargin:null;
@@ -362,6 +365,8 @@ function sectorAnalysis(p,m,r){
   ['Margen de contribución',pct(margin),margin>0?'Existe contribución positiva para absorber costos fijos y financiar el retorno de la inversión.':'El margen es nulo o negativo; la estructura de precios/costos debe revisarse.'],
   ['Ingreso por trabajador',money(revWorker),revWorker>0?'Indicador de productividad monetaria laboral para comparar la escala operativa del proyecto.':'No hay trabajadores registrados; el indicador no puede interpretarse.'],
   ['Ingresos recurrentes',pct(recurring),recurring>=.6?'Alta recurrencia: aporta previsibilidad a los flujos, aunque debe verificarse la retención de clientes.':recurring>=.3?'Recurrencia intermedia: combina ingresos recurrentes y variables.':'Baja recurrencia: el flujo depende en mayor medida de ventas o contratos no recurrentes.'],
+  ['Consistencia ingreso sectorial',revenueGap===null?'No calculable':pct(revenueGap),sectorConsistency?'Unidades × precio coincide con el ingreso del año 1 dentro de ±5%.':'Revisar: unidades × precio no coincide con el ingreso del flujo del año 1; la diferencia debe explicarse.'],
+  ['Costo variable / ingreso',variableCostShare===null?'No calculable':pct(variableCostShare),variableCostShare!==null&&variableCostShare<1?'La estructura unitaria conserva margen bruto positivo.':'El costo variable estimado alcanza o supera el ingreso del año 1.'],
   ['Punto de equilibrio',Number.isFinite(breakUnits)?num(breakUnits)+' unidades':'No calculable',Number.isFinite(breakUnits)?'Volumen estimado necesario para cubrir costos operativos fijos con el margen unitario informado.':'No existe margen unitario positivo para calcular un punto de equilibrio económico.']
  ];
  const sectorTables={
@@ -374,7 +379,7 @@ function sectorAnalysis(p,m,r){
  };
  const rowsSector=sectorTables[p.sector].map(x=>'<tr><td>'+x[0]+'</td><td>'+x[1]+'</td></tr>').join('');
  const utilBar=Math.max(0,Math.min(100,util*100));
- const diagnosis=util>1?'La utilización declarada supera el 100% de la capacidad; antes de interpretar la viabilidad debe ajustarse producción o capacidad.':unitMargin<=0?'El principal problema sectorial es económico-operativo: el margen unitario no cubre el costo variable.':util<.5?'Existe capacidad ociosa significativa. La evaluación debe comprobar si la demanda proyectada permite elevar la utilización sin aumentar proporcionalmente los costos.':margin<.2?'El margen de contribución es relativamente estrecho; pequeños cambios en precio o costos pueden alterar la generación de valor.':'La estructura operativa presenta una contribución positiva y una utilización de capacidad razonable; debe contrastarse con VAN, TIR, deuda y escenarios.';
+ const diagnosis=util>1?'La utilización declarada supera el 100% de la capacidad; antes de interpretar la viabilidad debe ajustarse producción o capacidad.':unitMargin<=0?'El principal problema sectorial es económico-operativo: el margen unitario no cubre el costo variable.':!sectorConsistency?'Existe una inconsistencia entre unidades × precio y los ingresos del flujo del año 1; debe conciliarse antes de considerar robusta la evaluación.':util<.5?'Existe capacidad ociosa significativa. La evaluación debe comprobar si la demanda proyectada permite elevar la utilización sin aumentar proporcionalmente los costos.':margin<.2?'El margen de contribución es relativamente estrecho; pequeños cambios en precio o costos pueden alterar la generación de valor.':'La estructura operativa presenta una contribución positiva y una utilización de capacidad razonable; debe contrastarse con VAN, TIR, deuda y escenarios.';
  return '<div class="sector-grid">'+cards.map(x=>'<div class="sector-card"><h4>'+x[0]+'</h4><div class="big">'+x[1]+'</div><p>'+x[2]+'</p></div>').join('')+'</div>'+
  '<div class="sector-section"><h3>Lectura de capacidad y productividad</h3><p><b>Utilización:</b> '+pct(util)+' de la capacidad instalada.</p><div class="bar"><i style="width:'+utilBar+'%"></i></div><p><b>Ingresos año 1:</b> '+money(rev1)+' · <b>Ingresos por trabajador:</b> '+money(revWorker)+' · <b>Unidades proyectadas:</b> '+num(p.units)+' · <b>Capacidad:</b> '+num(p.capacity)+'</p></div>'+
  '<div class="sector-section"><h3>Variables estructurales del sector</h3><div class="tablewrap"><table class="sector-table"><thead><tr><th>Dimensión</th><th>Interpretación</th></tr></thead><tbody>'+rowsSector+'</tbody></table></div></div>'+

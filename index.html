@@ -210,8 +210,9 @@ function integralIndicators(p,m,r,van,tm,pb,pbd){
   const endingDebt=Math.max(0,openingDebt-principal);
   const da=r.detail[t].da||0,amort=m.amort[t]||0;
   const ebit=r.detail[t].ebit||0,tax=r.detail[t].tax||0;
-  const capex=r.detail[t].capex||0,recovery=(m.wcRec[t]||0)+(m.salvage[t]||0);
-  const cfads=ebit-tax+da+amort-capex+recovery;
+  const capex=r.detail[t].capex||0,wcRecovery=m.wcRec[t]||0,salvage=m.salvage[t]||0;
+  const cfads=ebit-tax+da+amort-capex+wcRecovery;
+  const fcf=cfads+salvage;
   const service=interest+principal;
   const dscr=service>0?cfads/service:null;
   const ebitda=ebit+da;
@@ -222,7 +223,6 @@ function integralIndicators(p,m,r,van,tm,pb,pbd){
   const avgEquity=(equityOpening+equityEnd)/2;
   const nopat=ebit-Math.max(0,ebit*p.tax);
   const eva=nopat-(avgInvested*disc);
-  const fcf=cfads;
   debtBalance.push({t,opening:openingDebt,principal,interest,ending:endingDebt,cfads,service,dscr,ic,ebitda,nopat,invested:avgInvested,equity:avgEquity,eva,fcf});
   openingDebt=endingDebt;assetBase=investedEnd;equityOpening=equityEnd;
  }
@@ -264,7 +264,7 @@ function integralIndicators(p,m,r,van,tm,pb,pbd){
   ['ROA',roa,pct(roa),roa!==null&&roa>0,'Rentabilidad anualizada aproximada sobre el capital invertido promedio del proyecto.'],
   ['ROE',roe,pct(roe),roe!==null&&roe>0,'Rentabilidad anualizada aproximada sobre el patrimonio promedio estimado.'],
   ['DSCR mínimo',dscrMin,dscrMin===null?'No hay deuda':dscrMin.toFixed(2)+'x',dscrMin===null||dscrMin>=1.3,'Se evalúa por período; el mínimo es el indicador prudencial para detectar el año crítico.'],
-  ['DSCR promedio',dscrAvg,dscrAvg===null?'No hay deuda':dscrAvg.toFixed(2)+'x',dscrAvg===null||dscrAvg>=1.3,'Cobertura agregada de CFADS sobre servicio total de deuda.'],
+  ['DSCR promedio',dscrAvg,dscrAvg===null?'No hay deuda':dscrAvg.toFixed(2)+'x',dscrAvg===null||dscrAvg>=1.3,'Cobertura agregada de CFADS sobre servicio total de deuda; CFADS excluye valor de salvamento extraordinario.'],
   ['Cobertura de intereses mínima',icMin,icMin===null?'No hay intereses':icMin.toFixed(2)+'x',icMin===null||icMin>=2,'Se toma el período con menor cobertura; ≥2x es una referencia orientativa.'],
   ['Endeudamiento',p.initialInvestment>0?debt/p.initialInvestment:null,pct(p.initialInvestment>0?debt/p.initialInvestment:null),p.initialInvestment<=0||debt/p.initialInvestment<=.6,'Deuda final respecto a la inversión inicial; umbral orientativo.'],
   ['Deuda / Patrimonio',debtEquity,debtEquity===null?'No calculable':debtEquity.toFixed(2)+'x',debtEquity===null||debtEquity<=1,'Compara deuda final con patrimonio promedio estimado.'],
@@ -273,8 +273,8 @@ function integralIndicators(p,m,r,van,tm,pb,pbd){
   ['Servicio de deuda / CFADS',serviceFlow,pct(serviceFlow),serviceFlow===null||serviceFlow<=.8,'Una proporción menor indica mayor holgura del flujo para atender deuda.'],
   ['Capacidad máxima de endeudamiento',maxDebtCapacity,money(maxDebtCapacity),maxDebtCapacity>=debt,'Estimación orientativa basada en CFADS promedio, DSCR objetivo de 1,30x y anualidad a la tasa de financiación.'],
   ['EVA',eva,money(eva),eva>0,'Suma del valor económico agregado anual: NOPAT menos capital invertido promedio por WACC.'],
-  ['Flujo de caja libre',fcf,money(fcf),fcf>0,'Flujo antes de financiación: operación después de impuestos, inversión y recuperaciones.'],
-  ['Flujo de caja para accionista',fcfe,money(fcfe),fcfe>0,'Flujo neto después de crédito y servicio de deuda.'],
+  ['Flujo de caja libre',fcf,money(fcf),fcf>0,'Flujo antes de financiación: operación después de impuestos, inversión, recuperación de capital de trabajo y valor de salvamento.'],
+  ['Flujo de caja para accionista acumulado',fcfe,money(fcfe),fcfe>0,'Suma no descontada de los flujos netos del proyecto después de crédito y servicio de deuda; para valoración del accionista debe analizarse también su serie temporal.'],
   ['Punto de equilibrio',breakUnits,breakUnits===null?'No calculable':num(breakUnits)+' unidades',breakUnits!==null&&breakUnits<=p.units,'Volumen estimado para cubrir los costos fijos considerados con el margen unitario informado.'],
   ['Margen de seguridad',marginSafety,pct(marginSafety),marginSafety!==null&&marginSafety>0,'Caída porcentual de ventas promedio soportable antes de alcanzar el punto de equilibrio.']
  ];
